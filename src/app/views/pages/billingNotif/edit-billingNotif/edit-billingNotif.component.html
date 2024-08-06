@@ -1,0 +1,145 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/bill-notif']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" mat-raised-button
+				[disabled]="editMode && loading.acc || loading.submited">
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<section class="billingNotif">
+			<div class="section" *ngIf="billingNotif">
+				<form *ngIf="billingNotifForm" [formGroup]="billingNotifForm">
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Pilih No Unit</label>
+							<!-- Auto Complete -->
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input type="search" class="inpt-custom" matInput [matAutocomplete]="unitAuto"
+									(keyup)="_onKeyup($event)" [formControl]="viewUnitResult">
+								<mat-error>Fill input by selecting the given items</mat-error>
+								<div class="form-loader d-none">
+									<mat-spinner [diameter]="10"></mat-spinner>
+								</div>
+								<mat-autocomplete #unitAuto="matAutocomplete">
+									<mat-option *ngFor="let item of unitListResultFiltered"
+										value="{{item.cdunt | titlecase}}" (click)="_setUnitValue(item)">
+										{{item.cdunt}}
+									</mat-option>
+								</mat-autocomplete>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Serial Access Card</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" formControlName="serial_number" autocomplete="off" />
+								<mat-error>Serial Access Card is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Nama Penghuni</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" formControlName="tenant_name" autocomplete="off" />
+								<mat-error>Nama Penghuni is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Status</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<mat-select formControlName="status" [(ngModel)]="selectedStatus">
+									<mat-option *ngFor="let item of status" [value]="item">{{item}}</mat-option>
+								</mat-select>
+								<mat-error>Status is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input-date">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Tanggal Input</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" [matDatepicker]="createdDate" (click)="createdDate.open()"
+									formControlName="created_date" autocomplete="off" />
+								<mat-datepicker-toggle class="ic-date" matSuffix [for]="createdDate"></mat-datepicker-toggle>
+								<mat-datepicker #createdDate></mat-datepicker>
+								<mat-error>Tanggal Input is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+
+					</div>
+					<div class="row form-input-date">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Tanggal Pengambilan</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" [matDatepicker]="handoverDate" (click)="handoverDate.open()"
+									formControlName="handover_date" autocomplete="off" />
+								<mat-datepicker-toggle class="ic-date" matSuffix [for]="handoverDate"></mat-datepicker-toggle>
+								<mat-datepicker #handoverDate></mat-datepicker>
+								<mat-error>Tanggal Pengambilan is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Nama Pengambil</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" formControlName="receiver_name" autocomplete="off" />
+								<mat-error>Nama Pengambil is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">No HP</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<input matInput class="inpt-custom" formControlName="receiver_phone" autocomplete="off" />
+								<mat-error>No HP is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="row form-input">
+						<div class="col-md-6 row mb-1">
+							<label for="crdate" class="label-custom col-sm-6">Status Kartu</label>
+							<mat-form-field class="mat-form-field-fluid col-sm-6">
+								<mat-select formControlName="isActive" [(ngModel)]="selectedIsActive">
+									<mat-option *ngFor="let item of isActiveOptions" [value]="item.value">{{item.viewValue}}</mat-option>
+								</mat-select>
+								<mat-error>Status Kartu is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+				</form>
+			</div>
+		</section>
+		
+		
+	</kt-portlet-body>
+</kt-portlet>

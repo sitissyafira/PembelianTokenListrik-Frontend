@@ -1,0 +1,100 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/building']" class="btn btn-secondary kt-margin-r-10" mat-raised-button matTooltip="Back to the building list">
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="btn btn-secondary kt-margin-r-10" (click)="reset()" [disabled]="selectedTab !== 0" mat-raised-button matTooltip="Reset changes">
+				<i class="la la-cog"></i>
+				<span class="kt-hidden-mobile">Reset</span>
+			</a>
+			<a href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" mat-raised-button matTooltip="Save & Continue">
+				<span class="kt-hidden-mobile">Save</span>
+			</a>
+			<button mat-icon-button [matMenuTriggerFor]="menu" color="primary">
+				<mat-icon>more_vert</mat-icon>
+			</button>
+			<mat-menu #menu="matMenu">
+				<button mat-menu-item color="primary" (click)="onSubmit(true)">Save & Exit</button>
+				<button mat-menu-item color="primary">Save & Duplicate</button>
+				<button mat-menu-item color="primary" (click)="onSubmit(false)">Save & Continue</button>
+			</mat-menu>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-building"></i>
+					Building info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div>
+						<form [formGroup]="buildingForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Enter Building Name" formControlName="nmbld"/>
+											<mat-error>Building name is
+												<strong>required</strong>
+											</mat-error>
+											<mat-hint align="start">Please enter
+												<strong>Building Name</strong>
+											</mat-hint>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Enter Building Name" formControlName="addrbld"/>
+											<mat-error>Building name is
+												<strong>required</strong>
+											</mat-error>
+											<mat-hint align="start">Please enter
+												<strong>Building Name</strong>
+											</mat-hint>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Block Group Name" formControlName="grpblk" #groupBlock (selectionChange)="blockgroupChange(groupBlock.value)">
+												<mat-option [value]=""></mat-option>
+												<mat-option *ngFor="let item of blockGroupResult" [value]="item._id" >
+													{{item.grpnm}}
+												</mat-option>
+											</mat-select>
+											<mat-hint align="start">Please enter
+												<strong>Block</strong>
+											</mat-hint>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Block Name" formControlName="blk">
+												<mat-option *ngFor="let item of blockResult" [value]="item._id" >
+													{{item.nmblk}}
+												</mat-option>
+											</mat-select>
+											<mat-hint align="start">Please enter
+												<strong>Block</strong>
+											</mat-hint>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

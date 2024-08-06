@@ -1,0 +1,169 @@
+<kt-portlet>
+	<kt-portlet-header
+		[title]="getComponentTitle()"
+		[class]="'kt-portlet__head--lg'"
+		[viewLoading$]="loading$"
+	>
+		<ng-container ktPortletTools>
+			<a
+				[routerLink]="['/managementTask']"
+				class="btn btn-secondary kt-margin-r-10"
+				mat-raised-button
+			>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<!-- <button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading">
+				<span class="kt-hidden-mobile">Save</span>
+			</button> -->
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<div *ngIf="managementTask">
+			<form
+				[formGroup]="managementTaskForm"
+				class="kt-form kt-form--group-seperator-dashed"
+			>
+				<kt-alert
+					*ngIf="hasFormErrors"
+					type="warn"
+					[showCloseButton]="true"
+					[duration]="10000"
+					(close)="onAlertClose($event)"
+				>
+					Oh snap! Change a few things up and try submitting again.
+				</kt-alert>
+				<div class="kt-form__section kt-form__section--first">
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="User"
+									formControlName="user"
+									autocomplete="off"
+									maxlength="50"
+								/>
+								<mat-error
+									>User is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									[matDatepicker]="date"
+									placeholder="Date"
+									formControlName="created_date"
+								/>
+								<mat-error
+									>Date is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="Time"
+									formControlName="start_time"
+									autocomplete="off"
+									maxlength="50"
+								/>
+								<mat-error
+									>Time is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="Time"
+									formControlName="end_time"
+									autocomplete="off"
+									maxlength="50"
+								/>
+								<mat-error
+									>Time is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="Checkpoint"
+									formControlName="checkpoint"
+									autocomplete="off"
+									maxlength="50"
+								/>
+								<mat-error
+									>Checkpoint is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="mat-table__wrapper">
+						<ng-container formArrayName="remark">
+							<mat-table class="lmat-elevation-z8" mat-table #myTable [dataSource]="listRemark">
+								<ng-container matColumnDef="question">
+									<mat-header-cell *matHeaderCellDef>Pertanyaan</mat-header-cell>
+									<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+										{{element.get('question').value}}
+									</mat-cell>
+								</ng-container>
+								<ng-container matColumnDef="description">
+									<mat-header-cell *matHeaderCellDef>Deksripsi</mat-header-cell>
+									<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+										{{element.get('description').value}}
+									</mat-cell>
+								</ng-container>
+								<ng-container matColumnDef="check">
+									<mat-header-cell *matHeaderCellDef>Kondisi</mat-header-cell>
+									<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+										{{element.get('check').value === true ? "Baik" : "Tidak Baik"}}
+									</mat-cell>
+								</ng-container>
+								<ng-container matColumnDef="attachment">
+									<mat-header-cell *matHeaderCellDef>Foto</mat-header-cell>
+									<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+										<a *ngIf="element.get('attachment').value" href="{{element.get('attachment').value}}" target="_blank" >
+											<img src="{{element.get('attachment').value}}" class="image_container">
+										</a>
+									</mat-cell>
+								</ng-container>
+								<ng-container matColumnDef="actions">
+									<mat-header-cell *matHeaderCellDef>Foto</mat-header-cell>
+									<mat-cell *matCellDef="let element; let id = index">
+										<button mat-icon-button color="primary" matTooltip="Add Field" type="button" (click)="addQuestionToList(id)">
+											<mat-icon>add</mat-icon>
+										</button>
+										<button mat-icon-button color="warn" matTooltip="Delete Field" type="button"
+											[disabled]="id === 0" (click)="removeQuestionFromList(id)">
+											<mat-icon>delete</mat-icon>
+										</button>
+									</mat-cell>
+								</ng-container>
+
+								<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+								<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+							</mat-table>
+						</ng-container>
+					</div>
+				</div>
+			</form>
+		</div>
+	</kt-portlet-body>
+</kt-portlet>

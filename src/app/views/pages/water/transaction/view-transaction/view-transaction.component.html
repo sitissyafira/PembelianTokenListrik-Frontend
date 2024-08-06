@@ -1,0 +1,275 @@
+<!-- #Portlet One -->
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/water-management/water/transaction']" class="btn btn-secondary kt-margin-r-10"
+				mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<section class="packageManagement">
+			<div class="section" *ngIf="waterTransaction">
+				<!-- Form Input START -->
+				<form [formGroup]="waterTransactionForm" class="kt-form kt-form--group-seperator-dashed">
+					<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+						(close)="onAlertClose($event)">
+						Oh snap! Change a few things up and try submitting again.
+					</kt-alert>
+					<div class="kt-form__section kt-form__section--first">
+						<div class="form-group">
+							<div class="row form-input-date">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Billing Date</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" [matDatepicker]="billingDate" (click)="billingDate.open()"
+											formControlName="billmnt" autocomplete="off" />
+										<mat-datepicker-toggle class="ic-date" matSuffix [for]="billingDate"></mat-datepicker-toggle>
+										<mat-datepicker #billingDate></mat-datepicker>
+										<mat-error>Billing Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Select Water Meter</label>
+									<!-- Auto Complete -->
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input type="text" class="inpt-custom" matInput [matAutocomplete]="waterAuto" readonly
+											(keyup)="_onKeyup($event)" [formControl]="viewWaterMeterResult">
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<div class="form-loader d-none">
+											<mat-spinner [diameter]="10"></mat-spinner>
+										</div>
+										<mat-autocomplete #waterAuto="matAutocomplete">
+											<mat-option *ngFor="let item of waterListResultFiltered"
+												value="{{item.nmmtr}} - {{item.unit | titlecase}}" (click)="_setWaterValue(item)">
+												{{item.nmmtr}} - {{ item.unit | titlecase}}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row">
+									<label for="crdate" class="label-custom col-sm-6">Water Rate</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="rate" autocomplete="off" readonly />
+										<mat-error>Water Rate is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<!-- Form Input END -->
+			</div>
+		</section>
+	</kt-portlet-body>
+</kt-portlet>
+
+<!-- #Portlet Two -->
+<kt-portlet>
+	<kt-portlet-body>
+		<section class="packageManagement">
+			<div class="section" *ngIf="waterTransaction">
+				<!-- Form Input START -->
+				<form [formGroup]="waterTransactionForm" class="kt-form kt-form--group-seperator-dashed">
+					<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+						(close)="onAlertClose($event)">
+						Oh snap! Change a few things up and try submitting again.
+					</kt-alert>
+					<div class="kt-form__section kt-form__section--first">
+						<div class="form-group">
+							<!-- <div class="row">
+								<div class="col-md-6" style="position: absolute; right:0">
+									<div class="preview-img-cons"
+										style="position: absolute;background-color: wheat; width:70%; height:500px"></div>
+								</div>
+							</div> -->
+							<div class="row form-input">
+								<div class="col-md-6 prev-img-style-consumption-max-tab">
+									<!-- Jika tidak ada IMAGE START -->
+									<div *ngIf="!imageSrc && images.length < 1"
+										style="margin-bottom:150px;background-color: #F1F0F0; width:100%; height:500px"
+										class="d-flex justify-content-center align-items-center">
+										<h5>No Attachment Image !</h5>
+									</div>
+									<!-- Jika tidak ada IMAGE END -->
+
+									<!-- Terdapat Image START -->
+									<div [hidden]="!imageSrc && images.length < 1"
+										style="margin-bottom:150px;background-color: #F1F0F0; width:100%; height:500px; padding:8px">
+										<!-- Button untuk memilih image (web atau mobile) yang ingin dilihat #START -->
+										<button mat-raised-button color="{{isImage === 'web' ? 'primary' : ''}}" class="mr-2"
+											(click)="changeImage('web')">Web</button>
+										<button mat-raised-button color="{{isImage === 'mobile' ? 'primary' : ''}}" class="mr-2"
+											(click)="changeImage('mobile')">Mobile</button>
+										<!-- Button untuk memilih image (web atau mobile) yang ingin dilihat #END -->
+
+										<!-- Image From Web #START -->
+										<p [hidden]="isImage !== 'web'" class="img-web-mob-title">Image From Web</p>
+										<a href="{{waterTransaction?.urlmeter}}" target="_blank">
+											<img [hidden]="isImage !== 'web' || !imageSrc" src="{{waterTransaction?.urlmeter}}" width="100%"
+												height="100%">
+										</a>
+										<p [hidden]="isImage !== 'web'" [ngClass]=" images.length < 1? 'd-none' : ''"
+											style="text-align:center">
+											No
+											Attachment Image!</p>
+										<!-- Image From Web #END -->
+
+										<!-- Image From Mobile #START -->
+										<p [hidden]="isImage !== 'mobile'" class="img-web-mob-title">Image From Mobile</p>
+										<a href="{{images[0]}}" target="_blank">
+											<img [hidden]="isImage !== 'mobile' || images.length < 1" src="{{images[0]}}" width="100%"
+												height="100%">
+										</a>
+										<p [hidden]="isImage !== 'mobile'" [ngClass]="!imageSrc ? 'd-none' : ''" style="text-align:center">
+											No Attachment Image!</p>
+										<!-- Image From Mobile #END -->
+									</div>
+									<!-- Terdapat Image END -->
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Starting Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="strtpos" autocomplete="off" />
+										<mat-error>Starting Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-md-6 prev-img-style-consumption" style="position:relative">
+									<!-- Jika tidak ada IMAGE START -->
+									<div *ngIf="!imageSrc && images.length < 1"
+										style="position: absolute;background-color: #F1F0F0; width:100%; height:500px"
+										class="d-flex justify-content-center align-items-center">
+										<h5>No Attachment Image !</h5>
+									</div>
+									<!-- Jika tidak ada IMAGE END -->
+
+									<!-- Terdapat Image START -->
+									<div [hidden]="!imageSrc && images.length < 1"
+										style="position: absolute;background-color: #F1F0F0; width:100%; height:500px; padding:8px">
+										<!-- Button untuk memilih image (web atau mobile) yang ingin dilihat #START -->
+										<button mat-raised-button color="{{isImage === 'web' ? 'primary' : ''}}" class="mr-2"
+											(click)="changeImage('web')">Web</button>
+										<button mat-raised-button color="{{isImage === 'mobile' ? 'primary' : ''}}" class="mr-2"
+											(click)="changeImage('mobile')">Mobile</button>
+										<!-- Button untuk memilih image (web atau mobile) yang ingin dilihat #END -->
+
+										<!-- Image From Web #START -->
+										<p [hidden]="isImage !== 'web'" class="img-web-mob-title">Image From Web</p>
+										<a href="{{waterTransaction?.urlmeter}}" target="_blank">
+											<img [hidden]="isImage !== 'web' || !imageSrc" src="{{waterTransaction?.urlmeter}}" width="100%"
+												height="100%">
+										</a>
+										<p [hidden]="isImage !== 'web'" [ngClass]=" images.length < 1? 'd-none' : ''"
+											style="text-align:center">
+											No
+											Attachment Image!</p>
+										<!-- Image From Web #END -->
+
+										<!-- Image From Mobile #START -->
+										<p [hidden]="isImage !== 'mobile'" class="img-web-mob-title">Image From Mobile</p>
+										<a href="{{images[0]}}" target="_blank">
+											<img [hidden]="isImage !== 'mobile' || images.length < 1" src="{{images[0]}}" width="100%"
+												height="100%">
+										</a>
+										<p [hidden]="isImage !== 'mobile'" [ngClass]="!imageSrc ? 'd-none' : ''" style="text-align:center">
+											No Attachment Image!</p>
+										<!-- Image From Mobile #END -->
+									</div>
+									<!-- Terdapat Image END -->
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Actual Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="strtpos2" autocomplete="off" readonly />
+										<p class="m-0" style="bottom: 5px;position: absolute;right: 3px;font-size: 10px;">/m3</p>
+										<mat-error>Actual Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Last Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="endpos" autocomplete="off" />
+										<mat-error>Last Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Actual Last Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="endpos2" autocomplete="off" readonly />
+										<p class="m-0" style="bottom: 5px;position: absolute;right: 3px;font-size: 10px;">/m3</p>
+										<mat-error>Actual Last Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Consumption</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="cons" autocomplete="off" readonly />
+										<mat-error>Consumption is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row">
+									<span style="height: 2px; width:100%; background-color: #F3F3F3"></span>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mt-5 mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Water Management %</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="air_kotor" autocomplete="off" />
+										<mat-error>Water Management is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Posting</label>
+									<div class="ml-2">
+										<mat-checkbox [(ngModel)]="checker" formControlName="checker"></mat-checkbox>
+									</div>
+								</div>
+							</div>
+							<div style="height:100px; width: 10px;"></div>
+						</div>
+					</div>
+				</form>
+				<!-- Form Input END -->
+			</div>
+		</section>
+	</kt-portlet-body>
+</kt-portlet>

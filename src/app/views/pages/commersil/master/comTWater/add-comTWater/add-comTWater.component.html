@@ -1,0 +1,123 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/comTWater']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Water Transaction Commercial
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="comTWater">
+						<form [formGroup]="comTWaterForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="date" placeholder="Date" formControlName="date"
+												(click)="date.open()" autocomplete="off" />
+											<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+											<mat-datepicker #date></mat-datepicker>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input type="text" matInput placeholder="Select Water Meter" [formControl]="viewWaterMeterResult"
+												[matAutocomplete]="waterAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<mat-autocomplete #waterAuto="matAutocomplete">
+												<!-- <mat-option *ngIf="loadingData.Meter">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner> 
+													</div>
+												</mat-option> -->
+												<mat-option *ngIf="!loadingData.Meter && !waterListResultFiltered.length">Item is empty
+												</mat-option>
+												<mat-option *ngFor="let item of waterListResultFiltered"
+													value="{{item.nmmtr}} - {{item.unitCode | titlecase}}" (click)="_setWaterValue(item)">
+													{{item.nmmtr}} - {{ item.unitCode | titlecase}}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Rate" formControlName="rate" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Starting Meter" formControlName="strtpos"
+												(change)="changeMeterPost()" autocomplete="off" (keydown)="inputKeydownHandler($event)" />
+											<!-- <span matSuffix>/kWh</span> -->
+											<mat-error>Starting electricity Meter position is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Actual Meter Position" formControlName="strtpos2" />
+											<!-- <span matSuffix>/kWh</span> -->
+										</mat-form-field>
+									</div>
+								</div>
+
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Last Meter Position" formControlName="endpos"
+												(change)="changeMeterPost()" autocomplete="off" (keydown)="inputKeydownHandler($event)" />
+											<!-- <span matSuffix>/kWh</span> -->
+											<mat-error>Last electricity meter position is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Actual Last Meter Position" formControlName="endpos2" />
+											<!-- <span matSuffix>/kWh</span> -->
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Management ( % )" formControlName="waterManagement"
+												autocomplete="off" (keydown)="inputKeydownHandlerLoss($event)" />
+											<mat-error>Water Management is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-checkbox [(ngModel)]="isPosting" formControlName="isPosting">Posting</mat-checkbox>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

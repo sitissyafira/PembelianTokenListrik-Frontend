@@ -1,0 +1,175 @@
+::ng-deep .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+    opacity: 0.54 !important;
+    transform: translateY(0px) !important;
+}
+
+table {
+    width: 100%;
+}
+
+.sty-default {
+    font-family: 'Poppins', sans-serif;
+}
+
+.chip {
+    display: inline-block;
+    padding: 5px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: lowercase;
+    background-color: lightblue;
+    border-radius: 25px;
+
+    &--danger {
+        color: #fff;
+        background-color: #fd397a;
+    }
+
+    &--success {
+        color: #fff;
+        background-color: #00b93a;
+    }
+
+    &--warning {
+        background-color: gold;
+    }
+
+    &--primary {
+        background-color: #5d78ff;
+        color: white;
+    }
+
+    &--outstanding {
+        color: #E1215B;
+        background-color: #E1215B26;
+    }
+
+    &--full-payment {
+        color: #518BFB;
+        background-color: #518BFB26;
+    }
+
+    &--parsial-kurang {
+        background-color: #FBB75126;
+        color: #FBB751;
+    }
+
+    &--parsial-lebih {
+        background-color: #21E15726;
+        color: #21E157;
+    }
+
+    &--paid {
+        background-color: #3021E126;
+        color: #3021E1;
+    }
+
+    &--opened {
+        color: #5c5c5caa;
+        background-color: #d3d3d35e;
+    }
+
+    &--new {
+        color: #fff;
+        background-color: #b46c00;
+    }
+}
+
+.mat-column {
+    &-prnt {
+        flex: 0 0 10.5%;
+    }
+
+    &-read {
+        flex: 0 0 7%;
+    }
+}
+
+.mark {
+    background: none !important;
+    font-size: 12px;
+
+    &__title {
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: 600
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+
+        &-color {
+            height: 10px;
+            width: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: lightblue;
+
+            &--success {
+                background-color: #00b93a;
+            }
+
+            &--warning {
+                background-color: gold;
+            }
+
+            &--danger {
+                background-color: #fd397a;
+            }
+
+            &--primary {
+                background-color: #5d78ff;
+            }
+
+            &--outstanding {
+                background-color: #5C5C5C;
+            }
+
+            &--full-payment {
+                background-color: #518BFB;
+            }
+
+            &--parsial-kurang {
+                background-color: #FBB751;
+            }
+
+            &--parsial-lebih {
+                background-color: #21E157;
+            }
+
+            &--paid {
+                background-color: #3021E1;
+            }
+        }
+    }
+
+    &.mt-xs-2 {
+        @media screen and (max-width: 411px) {
+            margin-top: 2em;
+        }
+    }
+}
+
+.fntInput {
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+}
+
+// Set width of mat-table
+.mat-table__wrapper .mat-table {
+    @media screen and (min-width: 412px) {
+        min-width: 100%;
+    }
+}
+
+// Set on width on first cols table
+mat-cell:nth-child(1),
+mat-header-cell:nth-child(1) {
+    flex: .35;
+}
+
+.mat-column-payCond {
+    flex: 0 0 12%;
+}

@@ -1,0 +1,139 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/trgalon']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab" [ngClass]="isToken ? 'hidden-electricity' : ''">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="sty-default m-0 p-0"> Transaction Info </p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="trGalon">
+						<form *ngIf="trGalonForm" [formGroup]="trGalonForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Nama Unit</h6>
+										<p>{{valSelect.unt}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Status Payment</h6>
+										<span [ngClass]="_getStatusPayCond(trGalon?.isPaid)">
+											{{trGalon.isPaid ? "Paid" : 'UnPaid'}}
+										</span>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Nama Tenant</h6>
+										<p>{{valSelect.cstmr | titlecase}}</p>
+									</div>
+
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Status Delivery</h6>
+										<p>{{trGalon.deliveryStatus ? changeDeliveryStatus(trGalon.deliveryStatus) : " - "}}</p>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Pay To</h6>
+										<p>{{trGalon?.payment | titlecase}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Delivery Date</h6>
+										<p>{{trGalon?.delivery | date:"dd/MM/y" }}</p>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Qty</h6>
+										<p>{{trGalon?.qty}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Transaction Date</h6>
+										<p>{{trGalon?.brand.brand | titlecase }}</p>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Transaction From</h6>
+										<p>{{trGalon?.isMobile === true ? "Mobile" : "Back Office"}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Total Transaction {{trGalon?.totalPlusTax ? ('+ PPN ' + trGalon?.taxPercent + '%') : ''}}</h6>
+										<p>Rp. {{trGalon?.totalPlusTax ? (trGalon?.totalPlusTax | currency:"idr": "") : trGalon?.totalTr |
+											currency:"idr": ""}}</p>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Paid To</h6>
+										<p>{{trGalon?.bankORcoa_id ? (trGalon?.bankORcoa_id.acctName + " - " + trGalon?.bankORcoa_id.acctNo)
+											: ""}}</p>
+									</div>
+
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Transaction Date</h6>
+										<p>{{trGalon?.trDate | date:"dd/MM/y" }}</p>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					<p class="sty-default m-0 p-0"> Image</p>
+				</ng-template>
+				<!-- START -->
+				<div>
+					<div class="kt-form__section kt-form__section--first row">
+						<div class="form-group kt-form__group col-md-6 img-stylern1">
+							<h3>
+								PAYMENT CONFIRMATION
+							</h3>
+							<div class="form-image-container">
+								<a *ngFor='let image of images' href="{{image}}" target="blank">
+									<img crossorigin="anonymous" src="{{image}}"
+										[ngClass]="trGalon?.imageTrGalon !== null ? 'imgStyle': 'tes'">
+								</a>
+								<div class="no-image" *ngIf="!trGalon?.imageTrGalon">
+									<span>No attached image</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group kt-form__group col-md-6 img-stylern2">
+							<h3>
+								ORDER CONFIRMATION</h3>
+							<div class="form-image-container">
+								<a *ngFor='let image of imagesDelivery' href="{{image}}" target="blank">
+									<img crossorigin="anonymous" src="{{image}}"
+										[ngClass]="trGalon?.imageTrGalon !== null ? 'imgStyle': 'tes'">
+								</a>
+								<div class="no-image" *ngIf="!trGalon?.imageDelivery">
+									<span>No attached image</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END -->
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

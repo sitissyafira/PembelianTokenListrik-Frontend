@@ -1,0 +1,229 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/quotation']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<!-- <button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading.submit" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button> -->
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Quotation Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="quotation">
+						<form [formGroup]="quotationForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Quotation No" formControlName="quotation_no" autocomplete="off" maxlength="50"/>
+												<mat-error>Quotation Code is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div> -->
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput [matDatepicker]="date" placeholder="Date" formControlName="date" (dateChange)="receivedHandler($event)"/>
+												<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+												<mat-datepicker #date></mat-datepicker>
+												<mat-error>Date is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Purchase Request No" formControlName="select_pr_no" #pr (selectionChange)="prnoChange(pr.value)">
+													<mat-option *ngFor="let item of prResult" [value]="item._id" >
+														{{item.purchase_request_no}}
+													</mat-option>
+												</mat-select>
+											</mat-form-field>
+										</div>
+									</div>
+
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-9 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Quotation Subject" formControlName="quotation_subject" autocomplete="off" maxlength="50"/>
+												<mat-error>Quotation Subject is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-checkbox [(ngModel)]="isApproved" formControlName="isApproved">Approve</mat-checkbox>
+										</div> -->
+									</div>
+								</div>
+								<div class="kt-form__section kt-form__section--first">
+									
+									<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-12 kt-margin-bottom-20-mobile"> -->
+										
+										<div class="mat-table__wrapper">
+											<div class="list-title">
+												<strong>ITEM LIST</strong>
+											</div>
+											<mat-table class="lmat-elevation-z8"
+													   #table
+													   *ngIf="!loading.product || dataSource.value.length > 0"
+													   [dataSource]="dataSource">
+
+													<ng-container matColumnDef="product_code" >
+														<mat-header-cell *matHeaderCellDef>Product Code</mat-header-cell>
+														<mat-cell *matCellDef="let product">{{ product?.product_code}}</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="product_name" >
+														<mat-header-cell *matHeaderCellDef>Product Name</mat-header-cell>
+														<mat-cell *matCellDef="let product">{{	product?.product_name | titlecase 	}}</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="qty" >
+														<mat-header-cell *matHeaderCellDef>Qty</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.qty }}
+															</span>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="uom" >
+														<mat-header-cell *matHeaderCellDef>Uom</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.uom2 }}
+															</span>
+														</mat-cell>
+													</ng-container>
+													<!-- <ng-container matColumnDef="available_qty" >
+														<mat-header-cell *matHeaderCellDef>Available Qty</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.available_qty }}
+															</span>
+														</mat-cell>
+													</ng-container> -->
+													<ng-container matColumnDef="product_category" >
+														<mat-header-cell *matHeaderCellDef>Product Category</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.product_category.category_name }}
+															</span>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="specification" >
+														<mat-header-cell *matHeaderCellDef>Specification</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.specification }}
+															</span>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="description" >
+														<mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+														<mat-cell *matCellDef="let product">
+															<span class="ml-2 text-bold">
+																{{	product?.description }}
+															</span>
+														</mat-cell>
+													</ng-container>
+
+												<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+												<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+											</mat-table>
+											<div class="mat-table__message" *ngIf="dataSource.value.length === 0">No records found</div>
+											<div class="mat-table__message" *ngIf="loading.product">Please wait....</div>
+										</div>
+									<!-- </div> -->
+									</div>
+								</div>
+
+								<div class="kt-form__section kt-form__section--first">
+									
+									<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-12 kt-margin-bottom-20-mobile"> -->
+										
+										<div class="mat-table__wrapper">
+											<div class="list-title">
+												<strong>VENDOR LIST</strong>
+											</div>
+											<mat-table class="lmat-elevation-z8"
+													   #table
+													   *ngIf="dataVendor.value.length > 0"
+													   [dataSource]="dataVendor">
+													<ng-container matColumnDef="print">
+														<mat-header-cell *matHeaderCellDef></mat-header-cell>
+														<mat-cell *matCellDef="let vendor">
+															<button (click)="checkBeforePrint(vendor)" mat-icon-button color="warn"
+															color="primary" matTooltip="Print Invoice">
+																<!-- <mat-icon>print</mat-icon> -->
+																<mat-icon>print</mat-icon>
+															</button>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="vendor_code" >
+														<mat-header-cell *matHeaderCellDef>Vendor Code</mat-header-cell>
+														<mat-cell *matCellDef="let vendor">{{ vendor?.vendor_code}}</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="vendor_name" >
+														<mat-header-cell *matHeaderCellDef>Vendor Name</mat-header-cell>
+														<mat-cell *matCellDef="let vendor">{{	vendor?.vendor_name | titlecase 	}}</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="email" >
+														<mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+														<mat-cell *matCellDef="let vendor">
+															<span class="ml-2 text-bold">
+																{{	vendor?.pic_email }}
+															</span>
+															<!-- <div class="ml-2">
+															<button mat-icon-button color="warn" [disabled]="quotation._id" style="margin-right: -10px;" matTooltip="Remove" type="button" (click)="(decStock(product._id))"
+														>
+															<mat-icon>remove</mat-icon>
+														</button>
+															<button mat-icon-button color="accent" [disabled]="quotation._id" matTooltip="Add" type="button" (click)="(intStock(product._id))"
+														>
+															<mat-icon>add</mat-icon>
+														</button>
+													</div> -->
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="product_brand" >
+														<mat-header-cell *matHeaderCellDef>Product Brand</mat-header-cell>
+														<mat-cell *matCellDef="let vendor">
+															<span class="ml-2 text-bold">
+																{{	vendor?.product_brand.brand_name }}
+															</span>
+														</mat-cell>
+													</ng-container>
+
+												<mat-header-row *matHeaderRowDef="displayedColumnsVendor"></mat-header-row>
+
+												<mat-row *matRowDef="let row; columns: displayedColumnsVendor"></mat-row>
+											</mat-table>
+											<div class="mat-table__message" *ngIf="dataVendor.value.length === 0">No records found</div>
+											<div class="mat-table__message" *ngIf="loading.vendor">Please wait....</div>
+										</div>
+									<!-- </div> -->
+									</div>
+								</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

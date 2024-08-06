@@ -1,0 +1,63 @@
+::ng-deep .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+    opacity: 0.54 !important;
+    transform: translateY(0px) !important;
+}
+
+
+.chip {
+    display: inline-block;
+    padding: 5px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: lightblue;
+    border-radius: 25px;
+
+    &--danger {
+        color: #fff;
+        background-color: #fd397a;
+    }
+
+    &--success {
+        color: #fff;
+        background-color: #00b93a;
+    }
+
+    &--warning {
+        background-color: gold;
+    }
+
+    &--unpaid {
+        color: #fff;
+        background-color: #fd397a;
+    }
+
+    &--paid {
+        color: #fff;
+        background-color: #00b93a;
+    }
+    &--bayar_kurang {
+        color: #fff;
+        background-color: gold;
+    }
+}
+
+.mat-column-receipt_status {
+    display: flex;
+    justify-content: center;
+
+  }
+.mat-column-status {
+    display: flex;
+    justify-content: center;
+
+  }
+.mat-column-payment_status {
+    display: flex;
+    justify-content: center;
+
+  }
+.mat-column-grand_total {
+    display: flex;
+    justify-content: flex-end;
+  }

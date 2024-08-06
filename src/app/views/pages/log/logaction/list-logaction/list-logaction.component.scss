@@ -1,0 +1,56 @@
+::ng-deep .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+    opacity: 0.54 !important;
+    transform: translateY(0px) !important;
+}
+
+table {
+    width: 100%;
+}
+
+kt-portlet-body {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 25px 10px 25px !important;
+    border-radius: 4px;
+}
+
+.chip {
+    display: inline-block;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: lowercase;
+    background-color: lightblue;
+    border-radius: 25px;
+
+    &--danger {
+        color: #fff;
+        background-color: #fd397a;
+    }
+
+    &--success {
+        color: #fff;
+        background-color: #00b93a;
+    }
+
+    &--warning {
+        background-color: gold;
+    }
+
+    &--primary {
+        background-color: #5d78ff;
+        color: white;
+    }
+
+
+
+}
+
+.clr-red {
+    color: red;
+}
+
+.mat-column-log_status {
+    flex: 0 0 8%;
+}
+

@@ -1,0 +1,184 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/apark']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="kt-margin-r-10" (click)="reset()" [disabled]="loading" mat-raised-button>
+				<i class="la la-cog"></i>
+				<span class="kt-hidden-mobile">Reset</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Parking Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<ng-template [ngIf]="!loadingForm" [ngIfElse]="onLoadingForm">
+						<div *ngIf="addpark">
+							<form [formGroup]="addparkForm" class="kt-form kt-form--group-seperator-dashed">
+								<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+									(close)="onAlertClose($event)">
+									Oh snap! Change a few things up and try submitting again.
+								</kt-alert>
+								<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Code No." formControlName="codeAddParkLot" />
+												<mat-error>Code No. is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Status" formControlName="status">
+													<mat-option value="Active">Active</mat-option>
+													<mat-option value="Inactive">Inactive</mat-option>
+												</mat-select>
+												<mat-error>Status is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+										<!-- <div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Unit" formControlName="unit" #unt  (selectionChange)="unitChange(unt.value)">
+												<mat-option *ngFor="let item of unitResult" [value]="item._id">
+													{{ item.cdunt | uppercase }}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div> -->
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input type="text" matInput placeholder="Select Unit" [formControl]="viewBlockResult"
+													[matAutocomplete]="csmrAuto" (keyup)="_onKeyup($event)">
+												<mat-error>Fill input by selecting the given items</mat-error>
+												<div *ngIf="loadingData.unit" class="form-loader">
+													<mat-spinner [diameter]="10"></mat-spinner>
+												</div>
+												<mat-autocomplete #csmrAuto="matAutocomplete">
+													<mat-option *ngFor="let item of UnitResultFiltered" value="{{item.cdunt}}"
+														(click)="_setBlockValue(item)">
+														{{item.cdunt | uppercase }}
+													</mat-option>
+												</mat-autocomplete>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Tenant Name" formControlName="customer" />
+												<mat-error>Tenant Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Vehicle" formControlName="vehicle" #vehicle
+													(selectionChange)="vehicleChange(vehicle.value)">
+													<mat-option *ngFor="let item of vehicleResult" [value]="item._id">
+														{{ item.nmvhtp | titlecase }}
+													</mat-option>
+												</mat-select>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Vehicle No." formControlName="vehicleNum" />
+												<mat-error>Vehicle No. is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Block" formControlName="blockPark" #block
+													(selectionChange)="blkChange(block.value)">
+													<mat-option *ngFor="let item of blockResult" [value]="item._id">
+														{{ item.cdblk | uppercase }}
+													</mat-option>
+												</mat-select>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Available Slot" formControlName="avaliable"
+													(change)="AvaliableSlot()" />
+												<mat-error>Avaliable Space is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Vehicle Slot" formControlName="space" (change)="AvaliableSlot()" />
+												<mat-error>Vehicle Slot is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Available Space" formControlName="avaliablespace" />
+												<mat-error> Avaliable Space is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Parking Rate" formControlName="parkingRate" onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+												<span matPrefix>Rp&nbsp;</span>
+												<mat-error>Parking Rate is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</ng-template>
+
+					<!--end::Form-->
+
+					<ng-template #onLoadingForm>
+						<div class="text-center pt-4 pb-4">
+							<div class="d-inline-block mx-auto">
+								<mat-spinner [diameter]="20"></mat-spinner>
+							</div>
+							<div>
+								<span>Loading Form</span>
+							</div>
+						</div>
+					</ng-template>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

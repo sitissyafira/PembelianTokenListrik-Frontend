@@ -1,0 +1,34 @@
+::ng-deep .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+    opacity: 0.54 !important;
+    transform: translateY(0px) !important;
+}
+
+.chip {
+    display: inline-block;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: lightblue;
+    border-radius: 25px;
+
+    &--failed {
+        background-color: #FBB75126;
+        color: #FF0000;
+    }
+
+    &--success {
+        background-color: #21E15726;
+        color: #00FF66;
+
+    }
+}
+
+.mat-column-name {
+    flex: 0 0 20%;
+}
+.mat-column-checkpoint {
+    flex: 0 0 40%;
+}
+.mat-column-actions {
+    flex: 0 0 20%;
+}

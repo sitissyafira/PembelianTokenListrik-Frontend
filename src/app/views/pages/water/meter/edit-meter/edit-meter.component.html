@@ -1,0 +1,134 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/water-management/water/meter']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-flask"></i>
+					Water Meter Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<ng-template [ngIf]="!loadingForm" [ngIfElse]="onLoadingForm">
+						<div *ngIf="waterMeter">
+							<form [formGroup]="waterMeterForm" class="kt-form kt-form--group-seperator-dashed">
+								<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+									(close)="onAlertClose($event)">
+									Oh snap! Change a few things up and try submitting again.
+								</kt-alert>
+								<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Water Meter No." formControlName="nmmtr" autocomplete="off"
+													type="text" onkeydown="return event.keyCode !== 69" />
+												<mat-error>Water Meter No. is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Water Rate Name" formControlName="rte">
+													<mat-option *ngFor="let item of rateResult" [value]="item._id">
+														{{item.nmrtewtr | uppercase }} - Rp. {{ item.rte }}
+													</mat-option>
+												</mat-select>
+												<mat-error>Water Rate Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Block Code" formControlName="blk" #block
+													(selectionChange)="blkChange(block.value)">
+													<mat-option *ngIf="loadingData.block">
+														<div class="opt-loader">
+															<mat-spinner [diameter]="15">Loading Content</mat-spinner>
+														</div>
+													</mat-option>
+													<mat-option *ngIf="!loadingData.block && !blockResult.length">Item is empty</mat-option>
+													<mat-option *ngFor="let item of blockResult" [value]="item._id">
+														{{item.cdblk | uppercase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Block Code is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Floor Name" formControlName="flr" #floor
+													(selectionChange)="flrChange(floor.value)">
+													<mat-option *ngIf="loadingData.floor">
+														<div class="opt-loader">
+															<mat-spinner [diameter]="15"> Loading Content</mat-spinner>
+														</div>
+													</mat-option>
+													<mat-option *ngIf="!loadingData.floor && !floorResult.length">Item is empty</mat-option>
+													<mat-option *ngFor="let item of floorResult" [value]="item._id">
+														{{item.nmflr | uppercase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Floor Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Unit Code" formControlName="unt" #unit
+													(selectionChange)="unitChange(unit.value)">
+													<mat-option *ngIf="loadingData.unit">
+														<div class="opt-loader">
+															<mat-spinner [diameter]="15">Loading Content</mat-spinner>
+														</div>
+													</mat-option>
+													<mat-option *ngIf="!loadingData.unit && !unitResult.length">Item is empty</mat-option>
+													<mat-option *ngFor="let item of unitResult" [value]="item._id">
+														{{item.cdunt | uppercase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Unit Code is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!--end::Form-->
+					</ng-template>
+
+					<ng-template #onLoadingForm>
+						<div class="text-center pt-4 pb-4">
+							<div class="d-inline-block mx-auto">
+								<mat-spinner [diameter]="20"></mat-spinner>
+							</div>
+							<div>
+								<span>Loading Form</span>
+							</div>
+						</div>
+					</ng-template>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

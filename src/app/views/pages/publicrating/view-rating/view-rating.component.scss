@@ -1,0 +1,53 @@
+.fntInput {
+  font-family: 'Poppins', sans-serif;
+}
+
+.hide-scroll {
+  overflow: hidden;
+}
+
+.chip {
+  display: inline-block;
+  padding: 5px 15px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: lowercase;
+  background-color: lightblue;
+  border-radius: 25px;
+
+  &--low {
+    color: #5C5C5C;
+    background-color: #D3D3D3;
+  }
+
+  &--medium {
+    color: #518BFB;
+    background-color: #518BFB26;
+  }
+
+
+  &--tro {
+    color: #C2A300;
+    background-color: #C2A30026;
+  }
+
+  &--spv {
+    color: #518BFB;
+    background-color: #518BFB26;
+  }
+
+  &--mgr {
+    background-color: #21E15726;
+    color: #21E157;
+  }
+
+  &--mob {
+    color: #FDAF39;
+    background-color: #FDAF3926;
+  }
+
+  &--high {
+    background-color: #21E15726;
+    color: #21E157;
+  }
+}

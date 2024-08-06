@@ -1,0 +1,71 @@
+<div class="login">
+  <div class="login__product">
+    <div class="login__product-img">
+      <img src="assets/media/logos/bms-update.png" class="login__product-logo">
+    </div>
+
+    <div class="login__product-title">
+      <h4 class="login__product-title-text">Sign In</h4>
+    </div>
+  </div>
+
+  <div class="login__form">
+
+    <kt-auth-notice></kt-auth-notice>
+
+    <form (ngSubmit)="submit()" class="kt-form" [formGroup]="loginForm" autocomplete="off">
+      <div class="login__form-group">
+        <mat-form-field>
+          <mat-label>Username</mat-label>
+          <input matInput type="text" placeholder="Username" formControlName="username" autocomplete="off" />
+          <mat-error *ngIf="isControlHasError('username','required')">
+            <strong>{{ 'AUTH.VALIDATION.REQUIRED_FIELD' | translate }}</strong>
+          </mat-error>
+          <mat-error *ngIf="isControlHasError('username','text')">
+            <strong>{{ 'AUTH.VALIDATION.INVALID_FIELD' | translate }}</strong>
+          </mat-error>
+          <mat-error *ngIf="isControlHasError('username','minlength')">
+            <strong>{{ 'AUTH.VALIDATION.MIN_LENGTH_FIELD' | translate }} 3</strong>
+          </mat-error>
+          <mat-error *ngIf="isControlHasError('username','maxlength')">
+            <strong>{{ 'AUTH.VALIDATION.MAX_LENGTH_FIELD' | translate }} 320</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="login__form-group p-relative">
+        <mat-form-field>
+          <mat-label>{{ 'AUTH.INPUT.PASSWORD' | translate }}</mat-label>
+          <input matInput [type]="showPassword ? 'text' : 'password'"
+            placeholder="{{ 'AUTH.INPUT.PASSWORD' | translate }}" formControlName="password" autocomplete="off" />
+          <mat-error *ngIf="isControlHasError('password','required')">
+            <strong>{{ 'AUTH.VALIDATION.REQUIRED_FIELD' | translate }}</strong>
+          </mat-error>
+          <mat-error *ngIf="isControlHasError('password','minlength')">
+            <strong>{{ 'AUTH.VALIDATION.MIN_LENGTH_FIELD' | translate }} 3</strong>
+          </mat-error>
+          <mat-error *ngIf="isControlHasError('password','maxlength')">
+            <strong>{{ 'AUTH.VALIDATION.MAX_LENGTH_FIELD' | translate }} 100</strong>
+          </mat-error>
+
+          <button mat-icon-button (click)="togglePassword()" type="button">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+        </mat-form-field>
+
+      </div>
+
+      <div class="login__form-group btn-field">
+        <button type="submit" [disabled]="loading" id="kt_login_signin_submit"
+          class="btn btn-primary btn-elevate kt-login__btn-primary">
+          <mat-spinner *ngIf="loading" [diameter]="20" color="#ffffff"></mat-spinner>
+          {{ 'AUTH.LOGIN.BUTTON' | translate }}
+        </button>
+      </div>
+    </form>
+
+    <div class="login__form-footer">
+      <p>Don’t have an account? Contact Administrator</p>
+    </div>
+  </div>
+</div>

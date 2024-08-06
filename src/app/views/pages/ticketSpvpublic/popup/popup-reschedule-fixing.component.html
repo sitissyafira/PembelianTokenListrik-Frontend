@@ -1,0 +1,33 @@
+<div class="sty-default container">
+  <h1 class="sty-default" mat-dialog-title>Reschedule Fixing</h1>
+  <div mat-dialog-content>
+
+    <form [formGroup]="productForm" class="sty-default d-block row d-flex">
+      <div class="col-lg-6 kt-margin-bottom-20-mobile">
+        <mat-form-field class="inpField">
+          <input class="sty-default " matInput [matDatepicker]="crtdt" [min]="minDate" placeholder="Reschedule Date"
+            formControlName="rescheduleDateSurvey" (dateInput)="addEvent('input', $event)"
+            (dateChange)="addEvent('change', $event)" />
+          <mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+          <mat-datepicker #crtdt></mat-datepicker>
+          <mat-error>Reschedule date is
+            <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-lg-6">
+        <mat-form-field class="mat-form-field-fluid">
+          <input class="sty-default" matInput type="text" formControlName="rescheduleDescFixing"
+            placeholder="Reschedule Reason" autocomplete="off" />
+          <mat-error>reschedule is
+            <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+  <div mat-dialog-actions class="actions__container">
+    <button mat-raised-button (click)="onNoClick()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="saveButton()">Save</button>
+  </div>
+</div>

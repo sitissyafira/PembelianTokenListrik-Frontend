@@ -1,0 +1,75 @@
+kt-portlet-body {
+  .portlet-header {
+  
+    .mark {
+      background: none !important;
+      font-size: 12px;
+    
+      &__title {
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: 600
+      }
+    
+      &__item {
+        display: flex;
+        align-items: center;
+  
+        &-color {
+          height: 10px;
+          width: 10px;
+          display: inline-block;
+          border-radius: 50%;
+          margin-right: 5px;
+  
+          &--high {
+            background-color: #fd397a;
+          }
+          &--medium {
+            background-color: gold;
+          }
+          &--low {
+            background-color: #00b93a;
+          }
+        }
+      }
+    
+      &.mt-xs-2 {
+        @media screen and (max-width: 411px) {
+          margin-top: 2em;
+        }
+      }
+    }
+  }
+}
+
+
+.calendar {
+  
+  &-container {
+    position: relative;
+  }
+
+  &-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+}
+
+
+:host ::ng-deep a.fc-daygrid-event {
+  cursor: pointer;
+  white-space: normal !important;
+  align-items: normal !important;
+}
+
+:host ::ng-deep td.fc-daygrid-day.fc-day.fc-day-sun {
+  background-color: #f7f7f7;
+}

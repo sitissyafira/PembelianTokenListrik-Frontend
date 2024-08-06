@@ -1,0 +1,98 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/facility']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Facility Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="facility">
+						<form [formGroup]="facilityForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Block" formControlName="blockCode" #blockCode (selectionChange)="blockCodeChange(blockCode.value)">
+													<mat-option *ngFor="let item of blockResult" [value]="item._id">
+														{{item.cdblk | uppercase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Block is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Floor" formControlName="floorName">
+													<mat-option *ngFor="let item of floorResult" [value]="item._id">
+														{{item.nmflr | uppercase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Floor is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										
+									</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Facility Management Code" formControlName="facilityCode" autocomplete="off" maxlength="30"/>
+												<mat-error>Facility Management Code is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Facility Management Name" formControlName="facilityNo" autocomplete="off" maxlength="30"/>
+												<mat-error>Facility Management Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Facility Management Name" formControlName="facilityName" autocomplete="off" maxlength="30"/>
+												<mat-error>Facility Management Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Remarks" formControlName="remarks" autocomplete="off" maxlength="30"/>
+											<mat-error>Remarks is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

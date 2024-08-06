@@ -1,0 +1,252 @@
+<!-- #Portlet One -->
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/power-management/power/transaction']" class="btn btn-secondary kt-margin-r-10"
+				mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<section class="packageManagement">
+			<div class="section" *ngIf="powerTransaction">
+				<!-- Form Input START -->
+				<form [formGroup]="powerTransactionForm" class="kt-form kt-form--group-seperator-dashed">
+					<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+						(close)="onAlertClose($event)">
+						Oh snap! Change a few things up and try submitting again.
+					</kt-alert>
+					<kt-alert *ngIf="hasFormErrorsImage" type="warn" [showCloseButton]="true" [duration]="3000"
+						(close)="onAlertCloseImage($event)">
+						{{messageErrorImage}}
+					</kt-alert>
+
+					<div class="kt-form__section kt-form__section--first">
+						<div class="form-group">
+							<div class="row form-input-date">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Billing Date</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" [matDatepicker]="billingDate" (click)="billingDate.open()"
+											(dateChange)="billDate($event)" formControlName="billmnt" autocomplete="off" />
+										<mat-datepicker-toggle class="ic-date" matSuffix [for]="billingDate"></mat-datepicker-toggle>
+										<mat-datepicker #billingDate></mat-datepicker>
+										<mat-error>Billing Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Select Power Meter</label>
+									<!-- Auto Complete -->
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input type="search" class="inpt-custom" matInput [matAutocomplete]="powerAuto"
+											(keyup)="_onKeyup($event)" [formControl]="viewPowerMeterResult">
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<div class="form-loader d-none">
+											<mat-spinner [diameter]="10"></mat-spinner>
+										</div>
+										<mat-autocomplete #powerAuto="matAutocomplete">
+											<mat-option *ngFor="let item of powerListResultFiltered"
+												value="{{item.nmmtr}} - {{item.unit | titlecase}}" (click)="_setPowerValue(item)">
+												{{item.nmmtr}} - {{ item.unit | titlecase}}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row">
+									<label for="crdate" class="label-custom col-sm-6">Electricity Rate</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="rate" autocomplete="off" readonly />
+										<mat-error>Electricity Rate is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<!-- Form Input END -->
+			</div>
+		</section>
+	</kt-portlet-body>
+</kt-portlet>
+
+<!-- #Portlet Two -->
+<kt-portlet>
+	<kt-portlet-body>
+		<section class="packageManagement">
+			<div class="section" *ngIf="powerTransaction">
+				<!-- Form Input START -->
+				<form [formGroup]="powerTransactionForm" class="kt-form kt-form--group-seperator-dashed">
+					<div class="kt-form__section kt-form__section--first">
+						<div class="form-group">
+							<!-- <div class="row">
+								<div class="col-md-6" style="position: absolute; right:0">
+									<div class="preview-img-cons"
+										style="position: absolute;background-color: wheat; width:70%; height:500px"></div>
+								</div>
+							</div> -->
+							<div class="row form-input">
+								<div class="col-md-6 prev-img-style-consumption-max-tab">
+									<div style="background-color: #F1F0F0; width:100%; height:500px"
+										class="d-flex justify-content-center align-items-center">
+										<h5>No Attachment Image !</h5>
+									</div>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Starting Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="strtpos" (change)="changeMeterPost()"
+											autocomplete="off" (keydown)="inputKeydownHandler($event)" (keyup)="changeMeterPost()" />
+										<mat-error>Starting Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-md-6 prev-img-style-consumption" style="position:relative">
+									<div style="position: absolute;background-color: #F1F0F0; width:100%; height:500px"
+										class="d-flex justify-content-center align-items-center">
+										<h5>No Attachment Image !</h5>
+									</div>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Actual Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="strtpos2" autocomplete="off" readonly />
+										<p class="m-0" style="bottom: 5px;position: absolute;right: 3px;font-size: 10px;">/kWh</p>
+										<mat-error>Actual Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Last Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="endpos" autocomplete="off"
+											(keydown)="inputKeydownHandler($event)" (keyup)="changeMeterPost()"
+											(change)="changeMeterPost()" />
+										<mat-error>Last Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Actual Last Meter Position</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="endpos2" autocomplete="off" readonly />
+										<p class="m-0" style="bottom: 5px;position: absolute;right: 3px;font-size: 10px;">/kWh</p>
+										<mat-error>Actual Last Meter Position is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-actual-cons col-sm-6">Consumption</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="cons" autocomplete="off" readonly />
+										<mat-error>Consumption is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row">
+									<span style="height: 2px; width:100%; background-color: #F3F3F3"></span>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mt-5 mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Loss Electricity</label>
+									<mat-form-field class="mat-form-field-fluid col-sm-6">
+										<input matInput class="inpt-custom" formControlName="loss"
+											(keydown)="inputKeydownHandlerLoss($event)" autocomplete="off" />
+										<mat-error>Loss Electricity is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="row form-input">
+								<div class="col-md-6 row mb-3">
+									<label for="crdate" class="label-custom col-sm-6">Posting</label>
+									<div class="ml-2">
+										<mat-checkbox [(ngModel)]="checker" formControlName="checker"></mat-checkbox>
+									</div>
+								</div>
+							</div>
+							<!-- Code Here Upload Image, START -->
+							<div class="form-group kt-form__group row mt-3">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+
+										<label class="btn btn-default">
+											<input type="file" (change)="selectFile($event)" />
+										</label>
+										<div class="file-upload">
+											<button mat-raised-button color="primary" class="upload-btn" [disabled]="!selectedFiles"
+												(click)="upload()">
+												Upload
+											</button>
+										</div>
+										<br>
+										<div class="progress">
+											<mat-progress-bar class="progress-bar" mode="determinate" [value]="uploadProgress"
+												*ngIf="uploadProgress">
+											</mat-progress-bar>
+											<mat-icon class="cancel-upload" (click)="cancelUpload()" *ngIf="uploadProgress">delete_forever
+											</mat-icon>
+
+										</div>
+										<div class="alert alert-light" role="alert">{{ message }}</div>
+									</div>
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+										<img [src]="imageSrc" *ngIf="imageSrc" style="height:150px; width:150px">
+									</div>
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+										<mat-form-field class="invisible">
+											<input matInput placeholder="Photo Meter Url" formControlName="urlmeter" autocomplete="off"
+												maxlength="200" readonly />
+											<mat-error>Photo Meter must be
+												<strong>uploaded</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+
+							</div>
+							<!-- Code Here Upload Image, END -->
+
+
+						</div>
+					</div>
+				</form>
+				<!-- Form Input END -->
+			</div>
+		</section>
+	</kt-portlet-body>
+</kt-portlet>

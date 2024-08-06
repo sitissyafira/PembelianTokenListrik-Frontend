@@ -1,0 +1,206 @@
+<kt-portlet>
+	<kt-portlet-header [title]="'Void Journal List'" [class]="'kt-portlet__head--lg'"
+		[viewLoading$]="dataSource.loading$">
+		<ng-container ktPortletTools>
+			<button mat-raised-button class="mr-2" (click)="refresh()">Refresh
+				<mat-icon class="ic-refresh">
+					refresh
+				</mat-icon>
+			</button>
+		</ng-container>
+		<ng-container ktPortletTools>
+			<button (click)="exportExample()" mat-raised-button color="primary" class="ml-2">Export</button>
+		</ng-container>
+	</kt-portlet-header>
+
+
+	<kt-portlet-body>
+
+		<div class="row">
+			<div class="col-md-6">
+				<!-- Search or Select Voucher No start -->
+				<div class="d-flex">
+					<div class="kt-form ">
+						<mat-form-field class="sty-default mat-form-field example-chips">
+							<input class="sty-default" type="text" matInput placeholder="Select Voucher No"
+								[matAutocomplete]="unitAuto" (keyup)="_onKeyupUnit($event)">
+							<mat-error>Fill input by selecting the given items</mat-error>
+							<mat-autocomplete #unitAuto>
+								<div *ngIf="loadingData.unit" class="form-loader">
+									<mat-spinner [diameter]="10"></mat-spinner>
+								</div>
+								<mat-option *ngFor="let list of unitResult;" value="{{ list.voucherno }}" (click)="onSelect(list)">{{
+									list.voucherno
+									}} </mat-option>
+							</mat-autocomplete>
+						</mat-form-field>
+
+						<mat-chip-list #chipList aria-label="unit selection">
+							<mat-chip *ngFor="let list of selectedUnit;" (removed)="deleteList(list.voucherno, 'unit', list)"
+								color="primary" selected>
+								{{list.voucherno}}
+								<mat-icon matChipRemove>cancel</mat-icon>
+							</mat-chip>
+						</mat-chip-list>
+					</div>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<div class=" kt-margin-bottom-10-mobile">
+						<mat-form-field class="mat-form-field-fluid">
+							<mat-select placeholder="Filter By Status" [formControl]="date.filter.control">
+								<mat-option *ngFor="let list of filterByStatus" [value]="clearAllFilter"
+									(click)="valueFilterStatus(list.value)">{{ list.name }}</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<div class=" kt-margin-bottom-10-mobile">
+						<mat-form-field class="mat-form-field-fluid">
+							<mat-select placeholder="Filter By Status Feature" [formControl]="date.filter.control">
+								<mat-option *ngFor="let list of filterByStatusFeature" [value]="clearAllFilter"
+									(click)="valueFilterStatusFeature(list.value)">{{ list.name }}</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+
+				<!-- Search or Select Unit end -->
+
+				<br>
+				<!-- Start & End DATE start -->
+				<div class="d-flex">
+					<div class="sty-default kt-margin-bottom-10-mobile">
+						<mat-form-field class="sty-default mat-form-field">
+							<input matInput [formControl]="date.start.control" [matDatepicker]="startDate" placeholder="Start date"
+								(focus)="startDate.open()" (dateChange)="addDate('start', $event)" readonly #startDate />
+							<mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+							<mat-datepicker #startDate></mat-datepicker>
+						</mat-form-field>
+					</div>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<div class="sty-default kt-margin-bottom-10-mobile">
+						<mat-form-field class="sty-default mat-form-field">
+							<input matInput [formControl]="date.end.control" [matDatepicker]="endDate" placeholder="End date"
+								(focus)="endDate.open()" (dateChange)="addDate('end', $event)" readonly #endDate />
+							<mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+							<mat-datepicker #endDate></mat-datepicker>
+						</mat-form-field>
+					</div>
+				</div>
+				<!-- Start & End DATE end -->
+
+				<!-- Clear Filtering start -->
+				<div *ngIf="date.valid" class="col-md-12 mt-4">
+					<button mat-raised-button color="warn" (click)="clearAllFilter()">
+						Clear All Filter
+					</button>
+				</div>
+				<!-- Clear Filtering end -->
+			</div>
+
+			<div class="col-md-6 kt-margin-bottom-10-mobile">
+				<div class="mark__title">
+					<span>Mark color info</span>
+				</div>
+
+				<div class="row">
+
+					<div class="mark__list col-md-8">
+						<div class="mark__item">
+							<span class="mark__item-color mark__item-color--success"></span>
+							<span class="mark__item-description">Correction of payment data</span>
+						</div>
+
+						<div class="mark__item">
+							<span class="mark__item-color mark__item-color--warning"></span>
+							<span class="mark__item-description">Improved meter data input</span>
+						</div>
+
+						<div class="mark__item">
+							<span class="mark__item-color mark__item-color--danger"></span>
+							<span class="mark__item-description">Set the transaction datei</span>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="mat-table__wrapper">
+			<mat-table class="lmat-elevation-z8" #table [dataSource]="dataSource" matSort #sort1="matSort" matSortActive="id"
+				matSortDirection="asc" matSortDisableClear>
+
+				<!-- Field Voucher No. -->
+				<ng-container matColumnDef="billNo">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Voucher No.</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{jourVoid.voucherno}} </mat-cell>
+				</ng-container>
+
+				<!-- Field Unit -->
+				<ng-container matColumnDef="unit">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Unit</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{jourVoid.unit ? jourVoid.unit : "-" }} </mat-cell>
+				</ng-container>
+
+				<!-- Field Status Feature -->
+				<ng-container matColumnDef="statusFeature">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Status Feature</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{changeNameStatusFeature(jourVoid.statusFeature)}}
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Date -->
+				<ng-container matColumnDef="billing_date">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Journal Date</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{jourVoid.journal_date | date:"dd/MM/y" }}
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Delete Date -->
+				<ng-container matColumnDef="delete_date">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Delete Date</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{jourVoid.delete_date | date:"dd/MM/y" }}
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Update By -->
+				<ng-container matColumnDef="updateBy">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Update By</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid"> {{jourVoid.updateBy_name }}
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Status -->
+				<ng-container matColumnDef="reasonDel">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Status</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid">
+						<span [ngClass]="classStatusValue(jourVoid.reasonDel)">
+							{{changeNameStatus(jourVoid.reasonDel) }}
+						</span>
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Actions -->
+				<ng-container matColumnDef="actions">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Actions</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let jourVoid">
+						<button (click)="JourVoidingViewPopUp(jourVoid)" mat-icon-button color="primary" matTooltip="View">
+							<mat-icon>visibility</mat-icon>
+						</button>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+			</mat-table>
+			<div class="mat-table__message" *ngIf="!dataSource.hasItems">No records found</div>
+			<div class="mat-table__message" *ngIf="dataSource.isPreloadTextViewed$ | async">Please wait....</div>
+		</div>
+
+		<div class="mat-table__bottom">
+			<mat-spinner [diameter]="20" *ngIf="dataSource.loading$ | async"></mat-spinner>
+			<mat-paginator [pageSize]="10" [pageSizeOptions]="[10, 20, 50,100]" [length]="dataSource.paginatorTotal$ | async"
+				[showFirstLastButtons]="true"></mat-paginator>
+		</div>
+	</kt-portlet-body>
+</kt-portlet>

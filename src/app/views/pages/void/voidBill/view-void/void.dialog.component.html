@@ -1,0 +1,46 @@
+<!-- ============== Pop Up Input============== -->
+<div class="modalprocessgenerate">
+	<div>
+		<div class="modal-body process-generate">
+			<h3 mat-dialog-title class="row sty-default"><span
+					class="font-weight-bolder">{{data.dataVoid.billing_number}}</span></h3>
+			<hr>
+			<div class="kt-portlet__body">
+				<div class="processing">
+					<div>
+						<kt-portlet-body>
+							<section class="voidBillDelete">
+								<div class="information">
+									<table>
+										<tr *ngFor="let item of informationList">
+											<th class="pt-4">{{item.name}} &nbsp;&nbsp;&nbsp;&nbsp;</th>
+											<td class="pt-4">: {{item.name === "Bill Date" || item.name === "Delete Date" ? (item.value |
+												date:"dd/MM/y"):item.value}}</td>
+										</tr>
+									</table>
+								</div>
+								<div class="image" *ngIf="data.dataVoid.attachment">
+									<a href="{{urlServer + data.dataVoid.attachment}}" target="_blank">
+										<img src="{{urlServer + data.dataVoid.attachment}}" target="_blank" alt="image">
+									</a>
+								</div>
+							</section>
+							<section>
+								<div class="description">
+									<br *ngIf="!data.dataVoid.attachment">
+									<br *ngIf="!data.dataVoid.attachment">
+									<p class="font-weight-bold">Description :</p>
+									<textarea class="p-2 descVoid" name="desc" id="" cols="100" rows="4" readonly>{{data.dataVoid.descriptionDelete}}
+									</textarea>
+								</div>
+							</section>
+						</kt-portlet-body>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" (click)="closed()">Close</button>
+		</div>
+	</div>
+</div>

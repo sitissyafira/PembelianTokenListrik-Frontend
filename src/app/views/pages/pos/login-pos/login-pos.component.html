@@ -1,0 +1,22 @@
+<section>
+	<div class="container pos login d-flex justify-content-center align-items-center">
+		<div class="box">
+			<div class="image d-flex justify-content-center align-items-center">
+				<img src="../../../../../assets/media/pos/logo-pos.png" alt="logo-pos" width="150">
+			</div>
+			<div class="alert alert-danger mt-4" role="alert" [hidden]="cekLogin">
+				Invalid cashier name!
+			</div>
+			<form [formGroup]="posForm" class="form-input mt-4">
+				<label for="name">
+					Cashier Name
+				</label>
+				<br>
+				<input type="text" placeholder="Input Cashier Name..." formControlName="admName">
+			</form>
+			<div class="send-btn mt-5">
+				<button (click)="onSubmit()">Login</button>
+			</div>
+		</div>
+	</div>
+</section>

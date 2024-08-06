@@ -1,0 +1,710 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/billing']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Biling Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="billing">
+						<form *ngIf="billingForm" [formGroup]="billingForm" class="bill-styling kt-form kt-form--group-seperator-dashed hide-scroll">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)"> Oh snap! Change a few things up and try submitting again. </kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="information-unit row">
+									<div class="col-lg-12">
+										<h6 class="mb-3">Informasi Unit</h6>
+										<table>
+											<tr>
+												<td width="150">
+													<p>Nama Unit</p>
+												</td>
+												<td>
+													<p>: {{ billing?.unit2 | titlecase }}</p>
+												</td>
+											</tr>
+											<tr>
+												<td width="150">
+													<p>Nama Tenant</p>
+												</td>
+												<td>
+													<p>: {{ billing?.billed_to | titlecase }}</p>
+												</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="line-border"></div>
+								<!-- Informasi Billing -->
+								<div class="information-billing row">
+									<div class="col-lg-7">
+										<h6 class="mb-3">Informasi Billing</h6>
+										<table>
+											<tr>
+												<td width="150">
+													<p>Billing No</p>
+												</td>
+												<td>
+													<p>: {{ billing?.billing_number | titlecase }}</p>
+												</td>
+											</tr>
+											<tr>
+												<td width="150">
+													<p>Billing Date</p>
+												</td>
+												<td>
+													<p>: {{ billing?.billing_date | date : "dd/MM/y" }}</p>
+												</td>
+											</tr>
+											<tr>
+												<td width="150">
+													<p>Billing Due Date</p>
+												</td>
+												<td>
+													<p>: {{ billing?.due_date | date : "dd/MM/y" }}</p>
+												</td>
+											</tr>
+											<tr [hidden]="billing?.isPinalty ? false : true">
+												<td width="150">
+													<p>Pinalty</p>
+												</td>
+												<td>
+													<p style="color: red">: Rp. {{ billing.pinalty | currency : "IDR" : "" }}</p>
+												</td>
+												<!-- <tr [hidden]="isShowSPembayaran"> -->
+											</tr>
+											<tr *ngIf="billing.saldoDeposit">
+												<td width="150">
+													<p>Saldo Deposit</p>
+												</td>
+												<td>
+													<p style="color: green">: Rp. {{ billing.saldoDeposit | currency : "IDR" : "" }}</p>
+												</td>
+												<!-- <tr [hidden]="isShowSPembayaran"> -->
+											</tr>
+
+											<tr>
+												<td width="150">
+													<!-- <p>Sisa Pembayaran</p> -->
+													<!-- <p>{{
+													 billing.paymentSelection === 'bayar-lebih' ?
+														'Sisa Pembayaran' :
+													 billing.paymentSelection === 'bayar-kurang' ?
+														'Sisa Tagihan' :
+													 billing.paymentSelection === 'custom' ?
+														'Sisa Tagihan' :
+														isShowSPembayaran ? 'Sisa Pembayaran' : 'Sisa Tagihan'
+														}}</p> -->
+													<!-- <p>
+														{{
+													
+														}}
+													</p> -->
+													<p>
+														{{ billing.paymentSelection === "bayar-lebih" ? "Sisa Pembayaran" : billing.paymentSelection === "bayar-kurang" ? "Sisa Tagihan" : billing.paymentSelection === "custom" ? "Sisa Tagihan" : !isShowSPembayaran ? "Sisa Pembayaran" : isShowSPembayaran ? "Sisa Tagihan" : "" }}
+													</p>
+												</td>
+												<td [hidden]="isShowSPembayaran">
+													<p>: Rp. {{ billing?.totalBillLeft ? (convertMinesToPlus(billing?.totalBillLeft) | currency : "IDR" : "") : isToken ? (convertMinesToPlus(billing?.totalBilling - isCekTagihBayarToken) | currency : "IDR" : "") : (convertMinesToPlus(billing?.totalBilling - isCekTagihBayarAbodemen) | currency : "IDR" : "") }}</p>
+												</td>
+												<!-- <td [hidden]="isShowSPembayaran">
+													<p>: Rp. {{billing?.paymentSelection ? ((convertMinesToPlus(billing?.totalBillLeft)) |
+														currency: "IDR" :"") :
+														(convertMinesToPlus((billing?.totalBilling - isCekTagihBayarAbodemen)) |
+														currency: "IDR" :"")
+														}}</p>
+												</td> -->
+												<td [hidden]="!isShowSPembayaran">
+													<p>: Rp. {{ billing?.payCond === "full-payment" ? 0 : billing?.totalBillLeft ? (billing?.totalBillLeft | currency : "IDR" : "") : isToken ? (billing?.totalBilling - isCekTagihBayarToken | currency : "IDR" : "") : (billing?.totalBilling - isCekTagihBayarAbodemen | currency : "IDR" : "") }}</p>
+												</td>
+												<!-- <td [hidden]="!isShowSPembayaran">
+													<p>: Rp. {{billing?.payCond === "full-payment" ? 0 : billing?.paymentSelection ?
+														(billing?.totalBillLeft | currency: "IDR" :"") : ((billing?.totalBilling -
+														isCekTagihBayarAbodemen) |
+														currency: "IDR" :"") }}</p>
+												</td> -->
+											</tr>
+											<!-- <tr [hidden]="!isShowSPembayaran">
+												<td width="150">
+													<p>Sisa Tagihan</p>
+												</td>
+												<td>
+													<p>: Rp. {{billing?.payCond === "full-payment" ? 0 : billing?.totalBillLeft ?
+														(billing?.totalBillLeft | currency: "IDR": "") :
+														isToken ? ((billing?.totalBilling - isCekTagihBayarToken | currency : "IDR" : ""))
+														: ((billing?.totalBilling - isCekTagihBayarAbodemen | currency: "IDR" : ""))}}</p>
+												</td>
+											</tr> -->
+											<tr>
+												<th width="150">
+													<p>Tagihan Billing</p>
+												</th>
+												<th>
+													<p>: Rp. {{ isToken ? (isCekTagihBayarToken | currency : "IDR" : "") : (isCekTagihBayarAbodemen | currency : "IDR" : "") }}</p>
+												</th>
+											</tr>
+											<tr>
+												<th width="150">
+													<p>Total Tagihan Billing</p>
+												</th>
+												<th>
+													<p>: Rp. {{ billing?.totalBilling | currency : "IDR" : "" }}</p>
+												</th>
+											</tr>
+										</table>
+									</div>
+									<div class="col-lg-5">
+										<h6 class="mb-3" *ngIf="billing?.recordPayment">Riwayat Pembayaran</h6>
+										<!-- <div class="row" *ngFor="let item of prevBilling; index as i"> -->
+										<div class="row" *ngFor="let item of billing?.recordPayment">
+											<div class="col-auto">
+												<input type="checkbox" name="" checked="true" disabled />
+											</div>
+											<div class="col">
+												<p class="mb-2">({{ getMonthFromDate(item.createdDate) }}) - {{ item.payCond }} : Rp. {{ item.totalNominal | currency : " " }}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="line-border"></div>
+								<!-- Informasi Pembayaran -->
+								<div class="information-payment row">
+									<div class="col-lg-12">
+										<h6 class="mb-3">Informasi Pembayaran</h6>
+										<table class="row">
+											<div class="col-lg-3">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-select placeholder="Select Payment" [formControl]="payment.target.control">
+														<mat-option *ngFor="let item of paymentSelection" [value]="item.value" (click)="valueSelectPayment(item)">
+															{{ item.payment }}
+														</mat-option>
+													</mat-select>
+													<mat-error
+														>Select Payment is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-3" [hidden]="isPayCond">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput placeholder="Input Nominal Pembayaran" (input)="changeAmount($event, 'totalNominal')" formControlName="totalNominal" />
+													<span matPrefix>Rp &nbsp;</span>
+													<mat-error
+														>Input Nominal Pembayaran is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<!-- Bayar Kurang -->
+											<div class="col-lg-3" [hidden]="isBayarKurang">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput placeholder="Sisa Tagihan" (input)="changeAmount($event, 'sisaTagihan')" readonly formControlName="sisaTagihan" />
+													<span matPrefix>Rp &nbsp;</span>
+													<mat-error
+														>Sisa Tagihan is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<!-- Bayar Lebih -->
+											<div class="col-lg-3" [hidden]="isBayarLebih">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput placeholder="Sisa Pembayaran" (input)="changeAmount($event, 'sisaPembayaran')" readonly formControlName="sisaPembayaran" />
+													<span matPrefix>Rp &nbsp;</span>
+													<mat-error
+														>Sisa Pembayaran is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<!-- Custom -->
+											<div class="col-lg-3 kt-margin-bottom-10-mobile" [hidden]="isCustom">
+												<mat-form-field class="mat-form-field-fluid example-chips">
+													<mat-select placeholder="Select Tagihan" [formControl]="payment.tagihanCustom.control">
+														<mat-option *ngFor="let item of billArray" [value]="item.payment" (click)="selectList(item, 'Pay')">
+															{{ item.payment }}
+														</mat-option>
+													</mat-select>
+												</mat-form-field>
+
+												<mat-chip-list #chipList aria-label="Voucherno selection">
+													<mat-chip *ngFor="let list of selectedPay; let last = last" (removed)="deleteList(list._id, 'Pay', list)" color="primary" selected>
+														{{ list.payment }}
+														<mat-icon matChipRemove>cancel</mat-icon>
+													</mat-chip>
+												</mat-chip-list>
+											</div>
+											<div class="col-lg-6 row">
+												<!-- Custom Input SERVICE CHARGE start -->
+												<div class="col-lg-6" [hidden]="isCustomSC">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Input Nominal Pembayaran (Service Charge)" (input)="changeAmount($event, 'nominalSc')" formControlName="nominalSc" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Input Pembayaran (Service Charge) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<div class="col-lg-6" [hidden]="isCustomSC">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Sisa Tagihan (Service Charge)" readonly (input)="changeAmount($event, 'scBillLeft')" formControlName="scBillLeft" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Sisa Tagihan (Service Charge) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<!-- Custom Input SERVICE CHARGE END -->
+												<!-- Custom Input IPL start -->
+												<div class="col-lg-6" [hidden]="isCustomIPL">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Input Nominal Pembayaran (Sinking Fund)" (input)="changeAmount($event, 'nominalIpl')" formControlName="nominalIpl" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Input Pembayaran (Sinking Fund) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<div class="col-lg-6" [hidden]="isCustomIPL">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Sisa Tagihan (Sinking Fund)" readonly (input)="changeAmount($event, 'iplBillLeft')" formControlName="iplBillLeft" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Sisa Tagihan (Sinking Fund) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<!-- Custom Input IPL END -->
+												<!-- Custom Input Water start -->
+												<div class="col-lg-6" [hidden]="isCustomWater">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Input Nominal Pembayaran (Water)" (input)="changeAmount($event, 'nominalWater')" formControlName="nominalWater" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Input Pembayaran (Water) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<div class="col-lg-6" [hidden]="isCustomWater">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Sisa Tagihan (Water)" readonly (input)="changeAmount($event, 'waterBillLeft')" formControlName="waterBillLeft" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Sisa Tagihan (Water) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<!-- Custom Input Water END -->
+												<!-- Custom Input Electricity start -->
+												<div class="col-lg-6" [hidden]="isCustomElectricity">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Input Nominal Pembayaran (Electricity)" (input)="changeAmount($event, 'nominalPower')" formControlName="nominalPower" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Input Pembayaran (Electricity) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<div class="col-lg-6" [hidden]="isCustomElectricity">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Sisa Tagihan (Electricity)" readonly (input)="changeAmount($event, 'powerBillLeft')" formControlName="powerBillLeft" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Sisa Tagihan (Electricity) is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<!-- Custom Input Electricity END -->
+												<!-- Custom Input Tagihan start -->
+												<div class="col-lg-6" [hidden]="isCustomTagihan">
+													<div style="width: 100%; height: 30px"></div>
+													<!-- <mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Bayar sisa tagihan"
+															(input)="changeAmount($event, 'bayarSisa')"
+															formControlName="bayarSisa" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error>Bayar sisa tagihan is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field> -->
+												</div>
+												<div class="col-lg-6" [hidden]="isCustomTagihan">
+													<mat-form-field class="mat-form-field-fluid">
+														<input matInput placeholder="Total Sisa Tagihan" readonly (input)="changeAmount($event, 'sisaCustomTagihan')" formControlName="sisaCustomTagihan" />
+														<span matPrefix>Rp &nbsp;</span>
+														<mat-error
+															>Total Sisa Tagihan is
+															<strong>required</strong>
+														</mat-error>
+													</mat-form-field>
+												</div>
+												<!-- Custom Input Tagihan END -->
+											</div>
+										</table>
+									</div>
+								</div>
+								<div class="select-information row mt-5">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Payment Type" formControlName="paymentType">
+												<mat-option *ngFor="let item of paymentType" [value]="item.value" (click)="selectPaymentType()"> {{ item.payment }}</mat-option>
+											</mat-select>
+											<mat-error
+												>Select Payment Type is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="crtdt" placeholder="Payment Date" formControlName="paidDate" (click)="crtdt.open()" autocomplete="off" />
+											<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+											<mat-datepicker #crtdt></mat-datepicker>
+											<mat-error
+												>Date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid To" formControlName="bank">
+												<mat-option *ngFor="let item of bankResult" [value]="item._id"> {{ item.acctNo }} - {{ item.acctName | uppercase }} </mat-option>
+											</mat-select>
+											<mat-error
+												>Account Bank is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isBayarLebih">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Bayar Lebih Deposit To" formControlName="depositToBayarLebih">
+												<mat-option *ngFor="let item of depositToBayarLebihResult" [value]="item._id"> {{ item.acctNo }} - {{ item.acctName | uppercase }} </mat-option>
+											</mat-select>
+											<mat-error
+												>Account Bank is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="cekSelectPayment"
+										[ngClass]="!isToken ? 'd-none' : ''">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid To VA Water" formControlName="va_water">
+												<mat-option *ngFor="let item of vaWaterResult" [value]="item.va">
+													{{item.va }}
+												</mat-option>
+											</mat-select>
+											<mat-error>VA Water is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="cekSelectPayment"
+										[ngClass]="!isToken ? 'd-none' : ''">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid To VA IPL" formControlName="va_ipl">
+												<mat-option *ngFor="let item of vaIPLResult" [value]="item.va">
+													{{item.va }}
+												</mat-option>
+											</mat-select>
+											<mat-error>VA IPL is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div> -->
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="cekSelectPayment">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Paid To VA Water" formControlName="va_water"
+												readonly />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="cekSelectPayment">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Paid To VA IPL" formControlName="va_ipl"
+												readonly />
+										</mat-form-field>
+									</div> -->
+								</div>
+								<div class="row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Description" formControlName="desc" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+			<mat-tab label="Second">
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="m-0">Electricity Consumption</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="billing">
+						<form *ngIf="billingForm" [formGroup]="billingForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)"> Oh snap! Change a few things up and try submitting again. </kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Power Rate" formControlName="powerRate" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Total Fee" formControlName="allPowerAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Start Meter (kWh)" formControlName="startPower" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="End Meter (kWh)" formControlName="endPower" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption" formControlName="usePower" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption Fee (Rp.)" formControlName="useAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- <div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Service Charge (%)" formControlName="sc" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Service Charge Fee (Rp.)"
+												formControlName="scAmount" />
+										</mat-form-field>
+									</div>
+								</div> -->
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Administration(Rp.)" formControlName="administration" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="PPJU (%)" formControlName="ppju" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="PPJU Fee (Rp.)" formControlName="ppjuAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Loss (%)" formControlName="loss" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Loss Fee (Rp.)" formControlName="lossAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab label="Third">
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Water Consumption
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="billing">
+						<form *ngIf="billingForm" [formGroup]="billingForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)"> Oh snap! Change a few things up and try submitting again. </kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Rate" formControlName="waterRate" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Total Consumption" formControlName="allWaterAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Start Meter (m3)" formControlName="startWater" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="End Meter (m3)" formControlName="endWater" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption" formControlName="useWater" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption Fee (Rp.)" formControlName="useWaterAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Maintenance (Rp.)" formControlName="maintenance" />
+										</mat-form-field>
+									</div>
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Adm Bank (Rp.)" formControlName="admBank" />
+										</mat-form-field>
+									</div> -->
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Administration (Rp.)" formControlName="administration" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Abodemen (Rp.)" formControlName="abodemen" />
+										</mat-form-field>
+									</div>
+								</div>
+
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Management (%)" formControlName="dirtyWater" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Management Fee (Rp.)" formControlName="dirtyWaterAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					IPL Detail
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="billing">
+						<form *ngIf="billingForm" [formGroup]="billingForm" class="kt-form kt-form--group-seperator-dashed bill-styling">
+							<div class="form-group kt-form__group row" formGroupName="ipl">
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Unit Size" formControlName="unitSize" />
+									</mat-form-field>
+								</div>
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="IPL" formControlName="ipl" />
+										<span matPrefix>Rp&nbsp;</span>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Month IPL" formControlName="monthIpl" />
+									</mat-form-field>
+								</div>
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Total IPL" formControlName="allIpl" />
+										<span matPrefix>Rp&nbsp;</span>
+									</mat-form-field>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					Image
+				</ng-template>
+				<ng-template matTabContent>
+					<div>
+						<div class="kt-form__section kt-form__section--first bill-styling">
+							<div class="form-group kt-form__group row">
+								<div class="form-image-container">
+									<img crossorigin="anonymous" *ngFor="let image of images" src="{{ image }}" style="height: 300px; width: 300px; margin-left: 20px; margin-top: 20px" />
+									<div class="no-image" *ngIf="images.length < 1">
+										<span>No attached image</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

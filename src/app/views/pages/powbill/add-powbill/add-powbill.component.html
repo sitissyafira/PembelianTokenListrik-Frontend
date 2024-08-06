@@ -1,0 +1,147 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/pwbill']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="kt-margin-r-10" (click)="reset()"  [disabled]="loading" mat-raised-button>
+				<i class="la la-cog"></i>
+				<span class="kt-hidden-mobile">Reset</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"  [disabled]="loading" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Power Billing Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="powbill">
+						<form [formGroup]="powbillForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Unit" formControlName="owner" #unt (selectionChange)="getOwner(unt.value)">
+												<mat-option *ngFor="let item of ownResult" [value]="item._id">
+													{{item.unit.cdunt | uppercase}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Tenant Name" formControlName="tenantName" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Electricity Meter Name" formControlName="datameter" />
+										</mat-form-field>
+									</div> -->
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Electricity Rate Name" formControlName="rate" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Electricity Rate Name" formControlName="powerrate">
+												<mat-option *ngFor="let item of rateResult" [value]="item._id" >
+													{{item.nmrtepow | uppercase }} - Rp. {{ item.rte }}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Fee" formControlName="fee" 
+											onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+											<span matPrefix>Rp&nbsp;</span>
+												<mat-error>Water Rate is
+													<strong>required</strong>
+												</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Description" formControlName="notes" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					Billing Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="powbill">
+						<form *ngIf="powbillForm" [formGroup]="powbillForm" class="kt-form kt-form--group-seperator-dashed">
+							<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Billing No" formControlName="billingno"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="crtdt" placeholder="Created Date" formControlName="createdDate"/>
+											<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+											<mat-datepicker #crtdt></mat-datepicker>
+											<mat-error>Created Date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field>
+											<input matInput [matDatepicker]="billdate" placeholder="Billing Date"  formControlName="billingDate"/>
+											<mat-datepicker-toggle matSuffix [for]="billdate"></mat-datepicker-toggle>
+											<mat-datepicker #billdate></mat-datepicker>
+											<mat-error>Billing date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field>
+											<input matInput [matDatepicker]="ddate" placeholder="Billing Due Date" formControlName="dueDate"/>
+											<mat-datepicker-toggle matSuffix [for]="ddate"></mat-datepicker-toggle>
+											<mat-datepicker #ddate></mat-datepicker>
+											<mat-error>Due date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

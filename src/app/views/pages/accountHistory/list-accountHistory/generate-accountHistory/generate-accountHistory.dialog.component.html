@@ -1,0 +1,64 @@
+<div
+  class="kt-portlet"
+  [ngClass]="{ 'kt-portlet--body-progress kt-portlet--body-progress-overlay' : viewLoading }"
+>
+  <div class="kt-form">
+    <div class="kt-portlet__body p-4">
+      <!-- ========================== Loading ========================== -->
+      <div *ngIf="viewLoading" class="mx-auto">
+          <div class="d-flex align-items-center flex-column">
+            <h3 class=" mt-2 mb-5 row">PROCESS GENERATE Account History, </h3>
+            <div class="d-flex p-2 mb-5 warn-alert">
+              <mat-icon>warning</mat-icon>
+              <p class="m-0 p-0 mb-2">don't exit the page or open a new page in the browser tab!!</p>
+            </div>
+            <mat-spinner></mat-spinner>
+            <p class="mt-2 load-process">Please wait, until the process is
+              complete...</p>
+          </div>
+        </div>
+
+        <!--  ========================== Condition success ==========================  -->
+        <div *ngIf="!viewLoading && isGenerateSuccess" class="d-flex align-items-center flex-column">
+          <h3 class="mb-3 mt-2 mb-5 row">Success! Generate Account History,</h3>
+          <img src="../../../../../../assets/media/pos/checked.png" alt="checked" width="100" class="row">
+          <div class="success-alert p-2 mt-4 d-flex mb-3">
+            <mat-icon>info</mat-icon>
+            <p class="m-0 p-0">the generate process is successful, please check the account history that has been
+            entered into the list.</p>
+          </div>
+          <button type="button" 
+            mat-raised-button 
+            mat-dialog-close 
+            cdkFocusInitial  
+            matTooltip="Close"
+            [disabled]="viewLoading || dataLoading" 
+            color="primary"class="mb-2">
+            Close
+          </button>
+        </div>
+
+        <!-- ========================== Condition Failed ========================== -->
+        <div *ngIf="!viewLoading && !isGenerateSuccess" class="d-flex align-items-center flex-column">
+          <h3 class="mt-2 mb-5 mx-auto">
+            <mat-icon color="danger">warning</mat-icon>
+            Failed! Generate Account History</h3>
+          <kt-alert type="warn">
+            <span class="mx-auto">{{errorMessage ? errorMessage :
+              'generate Account History failed'}}</span>
+            
+          </kt-alert>
+          <p>Note : generate account history failed, recheck journal transaction data.</p>
+          <button type="button" 
+            mat-raised-button 
+            mat-dialog-close 
+            cdkFocusInitial  
+            matTooltip="Close"
+            [disabled]="viewLoading || dataLoading" 
+            color="primary"class="mb-2">
+            Close
+          </button>
+        </div>
+    </div>
+  </div>
+</div>

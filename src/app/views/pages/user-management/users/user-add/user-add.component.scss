@@ -1,0 +1,21 @@
+.example-form-field {
+  width: 200px;
+}
+.checkbox-container {
+  max-height: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.selected-container {
+  max-height: 300px;
+  max-width: 200px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.select-all {
+  // background-color: #b8b9ba;
+  color:#21E157;
+  line-height: 29px;
+  padding: 0 16px;
+  font-size : smaller;
+}

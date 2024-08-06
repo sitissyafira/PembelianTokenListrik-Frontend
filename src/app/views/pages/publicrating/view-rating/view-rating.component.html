@@ -1,0 +1,88 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/rating']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<span class="fntInput">Rating Info</span>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div class="hide-scroll" *ngIf="rating">
+						<form [formGroup]="ticketForm" class="fntInput kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<h6 class="mb-4 mt-5 font-weight-bold">Rating Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Rating</h6>
+										<div class="d-flex">
+											<img *ngFor="let i of imgStarTrue" src="{{imageStarTrue}}" alt="{{imageStarTrue}}" width="30">
+											<img *ngFor="let i of imgStarFalse" src="{{imageStarFalse}}" alt="{{imageStarFalse}}" width="30">
+										</div>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Ticket ID</h6>
+										<p>{{rating.ticketID}}</p>
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Working Order ID</h6>
+										<p>{{rating.woID}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Unit</h6>
+										<p>{{rating.ticket_id.unit2 | titlecase}}</p>
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Created Date</h6>
+										<p>{{rating.created_date | date:"dd/MM/yy"}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Feedback</h6>
+										<p>{{rating.feedback}}</p>
+									</div>
+								</div>
+								<h6 class="mb-4 mt-5 font-weight-bold">Engineer Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Engineer Survey</h6>
+										<p>{{rating?.ticket_id.engSurvey.name | titlecase}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Engineer Fixing</h6>
+										<p>{{rating?.ticket_id.engFixing.name | titlecase}}</p>
+									</div>
+								</div>
+								<h6 class="mb-4 mt-5 font-weight-bold">Status Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Status Ticket</h6>
+										<span class="chip chip--high">{{rating?.ticket_id.status === "tick-work-done" ||
+											rating?.ticket_id.status === "tick-work-done" ? "Done" : "-"}}</span>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

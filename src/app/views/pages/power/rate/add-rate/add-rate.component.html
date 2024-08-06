@@ -1,0 +1,83 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/power-management/power/rate']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"  [disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Electricity Rate Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="powerRate">
+						<form [formGroup]="powerRateForm" class="kt-form kt-form--group-seperator-dashed">
+
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Electricity Rate Name" formControlName="nmrtepow" autocomplete="off" maxlength="20"/>
+											<mat-error>Electricity Rate Name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Rate" formControlName="rte" 
+											onkeydown="return event.keyCode !== 69" type="number"
+											 />
+											<!-- onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))"/> -->
+											<span matPrefix>Rp&nbsp;</span>
+											<mat-error>Electricity Rate is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="PPJU (%)" formControlName="ppju" autocomplete="off" maxlength="3"
+											onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))"/>
+											<mat-error>PPJU is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Administration (%)" formControlName="srvc"  autocomplete="off" maxlength="3"
+											onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))"/>
+											<mat-error>Administration is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,179 @@
+<kt-portlet>
+	<kt-portlet-header
+		[title]="getComponentTitle()"
+		[class]="'kt-portlet__head--lg'"
+		[viewLoading$]="loading$"
+	>
+		<ng-container ktPortletTools>
+			<a
+				[routerLink]="['/managementTask']"
+				class="btn btn-secondary kt-margin-r-10"
+				mat-raised-button
+			>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading">
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<div *ngIf="managementTask">
+			<form
+				[formGroup]="managementTaskForm"
+				class="kt-form kt-form--group-seperator-dashed"
+			>
+				<kt-alert
+					*ngIf="hasFormErrors"
+					type="warn"
+					[showCloseButton]="true"
+					[duration]="10000"
+					(close)="onAlertClose($event)"
+				>
+					Oh snap! Change a few things up and try submitting again.
+				</kt-alert>
+				<div class="kt-form__section kt-form__section--first">
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									type="text" 
+									matInput
+									placeholder="Department"
+									[formControl]="viewDepartmentResult"
+									[matAutocomplete]="departmentAuto"
+									(keyup)="_onKeyup($event, 'department')"
+								/>
+								<mat-autocomplete #departmentAuto="matAutocomplete">
+									<mat-option *ngFor="let item of departmentListFiltered" value="{{item.department_name | titlecase}}" (click)="_setFormValue(item, 'department')" >
+										{{item.department_name | titlecase }}
+									</mat-option>
+								</mat-autocomplete>
+								<mat-error
+									>Department is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="Division"
+									[formControl]="viewDivisionResult"
+									[matAutocomplete]="divisionAuto"
+									(keyup)="_onKeyup($event, 'division')"
+								/>
+								<mat-autocomplete #divisionAuto="matAutocomplete">
+									<mat-option *ngFor="let item of divisionListFiltered" value="{{item.division_name | titlecase}}" (click)="_setFormValue(item, 'division')" >
+										{{item.division_name | titlecase }}
+									</mat-option>
+								</mat-autocomplete>
+								<mat-error
+									>Division is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="User"
+									[formControl]="viewUserResult"
+									[matAutocomplete]="userAuto"
+									(keyup)="_onKeyup($event, 'user')"
+								/>
+								<mat-autocomplete #userAuto="matAutocomplete">
+									<mat-option *ngFor="let item of userListFiltered" value="{{item.name | titlecase}}" (click)="_setFormValue(item, 'user')" >
+										{{item.name | titlecase }}
+									</mat-option>
+								</mat-autocomplete>
+								<mat-error
+									>user is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<mat-label>Date</mat-label>
+								<input
+									matInput
+									[matDatepicker]="dp"
+									placeholder="Date"
+									formControlName="created_date"
+								/>
+								<mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+								<mat-datepicker #dp >
+								</mat-datepicker>
+								<mat-error
+									>Date is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-label>Start Time</mat-label>
+							<div class="hr-example-cstm sty-default">
+								<input placeholder="Start Time" aria-label="Waktu Mulai" [ngxTimepicker]="startTime"
+									[format]="24" readonly>
+								<ngx-material-timepicker (timeSet)="setFormTime($event, 'start_time')" #startTime>
+								</ngx-material-timepicker>
+							</div>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-label>End Time</mat-label>
+							<div class="hr-example-cstm sty-default">
+								<input placeholder="End Time" aria-label="Waktu Selesai" [ngxTimepicker]="endTime"
+									[format]="24" readonly>
+								<ngx-material-timepicker (timeSet)="setFormTime($event, 'end_time')" #endTime>
+								</ngx-material-timepicker>
+							</div>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input
+									matInput
+									placeholder="Checkpoint"
+									[formControl]="viewCheckpointResult"
+									[matAutocomplete]="checkpointAuto"
+									(keyup)="_onKeyup($event, 'checkpoint')"
+								/>
+								<mat-autocomplete #checkpointAuto="matAutocomplete">
+									<mat-option *ngFor="let item of checkpointListFiltered" value="{{item.name | titlecase}}" (click)="_setFormValue(item, 'checkpoint')" >
+										{{item.name | titlecase }}
+									</mat-option>
+								</mat-autocomplete>
+								<mat-error
+									>Checkpoint is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<textarea matInput rows="4" placeholder="Catatan" formControlName="remark"></textarea>
+								<mat-error
+									>Fill input by selecting the given
+									items</mat-error
+								>
+								<!-- <div *ngIf="loading.block" class="form-loader">
+										<mat-spinner [diameter]="20"></mat-spinner>
+									</div> -->
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</kt-portlet-body>
+</kt-portlet>

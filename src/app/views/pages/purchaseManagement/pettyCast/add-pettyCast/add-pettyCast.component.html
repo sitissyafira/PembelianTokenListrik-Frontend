@@ -1,0 +1,106 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/pettyCast']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Petty Cash Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="pettyCast">
+						<form [formGroup]="pettyCastForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="date" placeholder="Created Date" formControlName="created_date"/>
+											<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+											<mat-datepicker #date></mat-datepicker>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Petty Cash No." formControlName="pettyCashNo" />
+											<mat-error>Petty Cash No. is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid From" formControlName="paidFrom">
+												<mat-option *ngIf="loading.deposit">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner> Loading Content
+													</div>
+												</mat-option>
+												<mat-option *ngIf="!loading.deposit && !apResult.length">Item is empty</mat-option>	
+												<mat-option *ngFor="let item of apResult" [value]="item._id" >
+													{{item.acctName | titlecase }}
+												</mat-option>
+											</mat-select> 
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="GL Account" formControlName="glaccount">
+												<mat-option *ngIf="loading.glaccount">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner> Loading Content
+													</div>
+												</mat-option>
+												<mat-option *ngIf="!loading.glaccount && !glResult.length">Item is empty</mat-option>												
+												<mat-option *ngFor="let item of glResult" [value]="item._id" >
+													{{item.acctName | titlecase }}
+												</mat-option>
+											</mat-select> 
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Amount" formControlName="amount"
+											onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))"/>
+											<span matPrefix>Rp &nbsp;</span>
+											<mat-error>Amount is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-12 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<textarea matInput placeholder="Description" formControlName="memo"></textarea>
+											<mat-error>Description is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

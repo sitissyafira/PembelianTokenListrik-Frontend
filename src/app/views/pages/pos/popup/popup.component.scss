@@ -1,0 +1,95 @@
+.container {
+  padding: 2em
+}
+
+mat-form-field {
+  margin-bottom: 1em;
+}
+
+.actions__container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sty-default {
+  color: var(--black);
+  font-family: 'Poppins', sans-serif;
+}
+
+.sty-default {
+  color: var(--black);
+  font-family: 'Poppins', sans-serif;
+}
+
+
+.qt-fnt {
+  font-size: 18px;
+}
+
+.inpField {
+  width: 100%;
+}
+
+.bill-pay {
+  background-color: transparent;
+  color: var(--black);
+  width: 35%;
+  border-radius: 5px;
+  margin-top: 5px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.btn-invoice {
+  margin-top: 10px;
+  background-color: #DDF1FF;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  color: #193A85;
+  font-size: 18px;
+  font-weight: 500;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.222);
+}
+
+.btn-back {
+  margin-top: 10px;
+  background-color: #5D78FF;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.222);
+}
+
+.btn-invoice:hover {
+  background-color: #92d1ff;
+}
+
+.title-header table tr td {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.title-header h5 {
+  text-decoration: underline;
+}
+
+.clr-tr {
+  color: rgb(0, 255, 0);
+}
+
+.note-open {
+  background-color: rgb(246, 246, 246);
+  border: 1px solid rgba(0, 0, 0, 0.21);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.082);
+  padding: 8px;
+}
+
+.note-open h6 {
+  text-decoration: underline;
+}

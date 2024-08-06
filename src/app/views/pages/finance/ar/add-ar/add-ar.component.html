@@ -1,0 +1,379 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/ar']" class="btn btn-primary kt-margin-r-10" color="primary" mat-raised-button>
+				<!-- <i class="la la-arrow-left"></i> -->
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" mat-raised-button
+				[disabled]="loading.submit">
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+			<!-- <button class="btn btn-primary kt-margin-r-10" color="primary" (click)="tester()" mat-raised-button
+				[disabled]="loading.submit">
+				<span class="kt-hidden-mobile">Tester</span>
+			</button> -->
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<div *ngIf="ar">
+			<form [formGroup]="arForm" class="kt-form kt-form--group-seperator-dashed">
+				<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+					(close)="onAlertClose($event)">
+					Oh snap! Change a few things up and try
+					submitting again.
+				</kt-alert>
+				<div class="kt-form__section kt-form__section--first">
+					<div class="row">
+						<div class="col-lg-4 kt-margin-bottom--mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input matInput [matDatepicker]="crtdt" placeholder="Date" formControlName="date" (click)="crtdt.open()"
+									autocomplete="off" />
+								<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+								<mat-datepicker #crtdt></mat-datepicker>
+								<mat-error>Date is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-4 ">
+							<mat-form-field class="mat-form-field-fluid">
+								<input type="text" matInput placeholder="Deposit To" [formControl]="viewArResult"
+									[matAutocomplete]="arAuto" (keyup)="_onKeyup($event)" />
+								<mat-error>Fill input by selecting the
+									given items</mat-error>
+								<mat-autocomplete #arAuto="matAutocomplete">
+									<mat-option *ngIf="loading.deposit">
+										<div class="opt-loader">
+											<mat-spinner [diameter]="15"></mat-spinner>
+										</div>
+									</mat-option>
+									<mat-option *ngIf="
+											!loading.deposit &&
+											!arListResultFiltered.length
+										">Item is empty</mat-option>
+									<mat-option *ngFor="
+											let item of arListResultFiltered
+										" value="{{
+											item.acctNo | titlecase
+										}} - {{
+											item.acctName
+												| titlecase
+										}}" (click)="_setArValue(item)">
+										{{
+										item.acctNo | titlecase
+										}}
+										-
+										{{
+										item.acctName
+										| titlecase
+										}}
+									</mat-option>
+								</mat-autocomplete>
+							</mat-form-field>
+						</div>
+						<div class="col-lg-4 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<mat-select formControlName="isJournal" placeholder="Select Journal" class="fw-bold">
+									<mat-option *ngFor="let item of journalType" (click)="onSelectJournal(item.value)"
+										[value]="item.value">
+										<strong>{{item.name}}</strong>
+									</mat-option>
+								</mat-select>
+								<mat-error>Journal Type is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="form-group kt-form__group row mb-5 mt-3">
+						<div class="col-lg-4 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input matInput placeholder="Pay From" formControlName="payFrom" />
+							</mat-form-field>
+						</div>
+						<div class="col-lg-4 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<input matInput placeholder="Currency" formControlName="rate" />
+							</mat-form-field>
+						</div>
+
+						<!-- ============== Field Voucher NO (START) ============== -->
+						<div class="col-md-4" [hidden]="checkIsWO">
+							<mat-form-field class="mat-form-field-fluid">
+								<input type="text" matInput placeholder="Voucher No" [formControl]="viewVoucherResult"
+									(keyup)="_onKeyupVoucherNo($event)">
+								<mat-error>Fill input by selecting the given items</mat-error>
+								<div *ngIf="loadingData.voucher" class="form-loader">
+									<mat-spinner [diameter]="10"></mat-spinner>
+								</div>
+							</mat-form-field>
+						</div>
+						<div class="col-md-4" [hidden]="!checkIsWO">
+							<mat-form-field class="mat-form-field-fluid">
+								<input type="text" matInput placeholder="Voucher No" [formControl]="viewVoucherResult"
+									[matAutocomplete]="voucherAuto" (keyup)="_onKeyupVoucherNo($event)">
+								<mat-error>Fill input by selecting the given items</mat-error>
+								<div *ngIf="loadingData.voucher" class="form-loader">
+									<mat-spinner [diameter]="10"></mat-spinner>
+								</div>
+								<mat-autocomplete #voucherAuto="matAutocomplete">
+									<mat-option *ngFor="let item of VoucherResultFiltered" value="{{item.billing_number}}"
+										(click)="_setVoucherBillValue(item)">
+										{{item.billing_number | uppercase }}
+									</mat-option>
+								</mat-autocomplete>
+							</mat-form-field>
+						</div>
+						<!-- ============== Field Voucher NO (END) ============== -->
+						<div class="col-lg-4 mat-table__message" *ngIf="!ccList.length">
+							<button mat-icon-button color="primary" matTooltip="Add GL" type="button" (click)="addCCEmpty(ccList)">
+								<mat-icon>add</mat-icon>
+								Add GL Account
+							</button>
+						</div>
+					</div>
+
+					<!-- Multi GL Account START-->
+					<div class="kt-form" formGroupName="multiGLAccount">
+						<div class="mat-table__wrapper">
+
+							<mat-table class="lmat-elevation-z8" mat-table #myTable [dataSource]="ccList" matSort #sort1="matSort"
+								matSortDirection="asc" matSortDisabledClear>
+
+								<ng-container matColumnDef="no">
+									<mat-cell *matCellDef="let cc; let id = index">{{id + 1}}</mat-cell>
+								</ng-container>
+
+								<ng-container matColumnDef="gl">
+									<mat-cell *matCellDef="let cc; let id = index">
+										<div class="col-md-12 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input type="text" matInput placeholder="GL Account" name="{{id + 1}}"
+													[matAutocomplete]="GlAuto" (keyup)="_onKeyupGL($event)" />
+												<mat-error>Fill input by selecting the
+													given items</mat-error>
+												<mat-autocomplete #GlAuto="matAutocomplete">
+													<mat-option *ngIf="loading.glaccount">
+														<div class="opt-loader">
+															<mat-spinner [diameter]="15"></mat-spinner>
+														</div>
+													</mat-option>
+													<mat-option *ngIf="
+													!loading.glaccount &&
+													!gLListResultFiltered.length
+												">Item is empty
+													</mat-option>
+													<mat-option *ngFor="
+													let item of gLListResultFiltered
+												" value="{{
+													item.acctNo | titlecase
+												}} - {{
+													item.acctName
+														| titlecase
+												}}" (click)="
+													_setGLAccount(item, ('target' + (id + 1)))
+												">
+														{{
+														item.acctNo | titlecase
+														}}
+														-
+														{{
+														item.acctName
+														| titlecase
+														}}
+													</mat-option>
+												</mat-autocomplete>
+											</mat-form-field>
+										</div>
+
+									</mat-cell>
+								</ng-container>
+								<ng-container matColumnDef="amount">
+
+									<mat-cell *matCellDef="let cc; let id = index">
+										<div class="col-md-12 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Amount" name="{{id + 1}}" (input)="changeAmount($event, (id + 1))"
+													formControlName="{{'amount' + (id + 1)}}" />
+												<span matPrefix>Rp &nbsp;</span>
+												<mat-error>Amount is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+
+									</mat-cell>
+								</ng-container>
+
+
+								<ng-container matColumnDef="desc">
+									<mat-cell *matCellDef="let cc; let id = index">
+										<div class="col-md-12 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<!-- <input matInput placeholder="Description" (change)="valueAmount($event)" name="{{id + 1}}" formControlName="memo" /> -->
+												<input matInput placeholder="Description" name="{{id + 1}}"
+													formControlName="{{'memo' + (id + 1)}}" />
+												<mat-error>Description is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+
+									</mat-cell>
+								</ng-container>
+
+								<ng-container matColumnDef="isdebit">
+									<mat-cell *matCellDef="let cc; let id = index">
+										<div class="col-md-12 d-flex flex-row align-items-center kt-margin-bottom-20-mobile">
+											<div class="d-flex">
+												<div class="d-flex align-items-center">
+													<input type="radio" id="{{'Debit' + (id + 1)}}" name="{{(id + 1)}}" value="true"
+														checked="checked" (change)="valueIsDebit($event)" (click)="clickToggle($event)" />
+													<label for="{{'Debit' + (id + 1)}}" class="m-0 pl-2">Debit</label><br />
+												</div>
+												<div class="mx-3 d-flex align-items-center">
+													<input type="radio" id="{{'Credit' + (id + 1) }}" name="{{(id + 1)}}" value="false"
+														(change)="valueIsDebit($event)" (click)="clickToggle($event)" />
+													<label for="{{'Credit' + (id + 1) }}" class="m-0 pl-2">Credit</label><br />
+												</div>
+											</div>
+										</div>
+
+									</mat-cell>
+								</ng-container>
+
+								<ng-container matColumnDef="action">
+									<mat-header-cell *matHeaderCellDef>actions</mat-header-cell>
+									<mat-cell *matCellDef="let cc; let id = index">
+										<button mat-icon-button color="primary" matTooltip="Add Field" type="button"
+											[ngClass]="'hideMaksField' + (id + 1)" [disabled]="totalField != (id + 1) ? true : false"
+											(click)="addCC((id + 1))">
+											<mat-icon>add</mat-icon>
+										</button>
+										<button mat-icon-button color="warn" matTooltip="Delete Field" type="button"
+											[disabled]="totalField != (id + 1) ? true : false" (click)="removeCC(id)">
+											<mat-icon>delete</mat-icon>
+										</button>
+									</mat-cell>
+								</ng-container>
+
+								<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+							</mat-table>
+
+							<!-- Message for empty data -->
+							<!-- <div class="mat-table__message" *ngIf="!ccList.length">
+								<button mat-icon-button color="primary" matTooltip="Add GL" type="button"
+									(click)="addCCEmpty(ccList)">
+									<mat-icon>add</mat-icon>
+									Add GL Account
+								</button>
+							</div> -->
+						</div>
+					</div>
+
+
+					<!-- Multi GL Account END -->
+
+					<!-- Payment Start -->
+					<div class="form-group kt-form__group row">
+						<div class="col-lg-6 kt-margin-bottom-20-mobile mat-table__message" [hidden]="isSelectVoucher">
+							<div class="row">
+
+								<div class="col-md-8 slctinput" [hidden]="isSelectUnit">
+									<mat-form-field class="mat-form-field-fluid">
+										<input type="text" matInput placeholder="Select Unit" [formControl]="viewBlockResult"
+											[matAutocomplete]="csmrAuto" (keyup)="_onKeyupUnit($event)">
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<div *ngIf="loadingData.unit" class="form-loader">
+											<mat-spinner [diameter]="10"></mat-spinner>
+										</div>
+										<mat-autocomplete #csmrAuto="matAutocomplete">
+											<mat-option *ngFor="let item of UnitResultFiltered" value="{{item.cdunt}}"
+												(click)="_setBlockValue(item)">
+												{{item.cdunt | uppercase }}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+								<div class="col-md-4 slctinput" [hidden]="isCheckAmoutWO">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Amount Paid" name="payAmount"
+											(input)="changeAmount($event,'payAmountWO')" formControlName="payAmount" />
+										<span matPrefix>Rp &nbsp;</span>
+										<mat-error>Amount is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-md-4 slctinput" [hidden]="isCheckAmoutWO">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Total Underpayment" name="payAmount" readonly
+											(input)="changeAmount($event,'payUnderWO')" formControlName="underPayment" />
+										<span matPrefix>Rp &nbsp;</span>
+										<mat-error>payAmount is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+						<!-- <div class="trans-setoff col-lg-6 kt-margin-bottom-20-mobile mat-table__message" [hidden]="isTransSetOff">
+							<p class="title font-weight-bold" [ngClass]="isOpenPayCond ? 'cek' : ''">Transaction Account Receive
+							</p>
+							<div class="box-trans row">
+								<div class="paid pl-4 col-md-2 d-flex align-items-center">
+									<div class=" kt-margin-bottom-20-mobile">
+										<mat-checkbox [(ngModel)]="isStatus" (change)="changeStatus()" formControlName="status">Paid
+										</mat-checkbox>
+									</div>
+								</div>
+								<div class="payment col-md-5" [hidden]="isOpenPayCond">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select placeholder="Select Payment" [formControl]="checked.control">
+											<mat-option *ngFor="let list of payCondList" [value]="list.value"
+												(click)="valuePayCond(list.value)">{{
+												list.payment }}</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+								<div class="pay-date col-md-5" [hidden]="isOpenDatePayCond">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput [matDatepicker]="crtdt2" placeholder="Payment Date"
+											[formControl]="checked.date.control" (dateChange)="voucherDateHandler($event)" />
+										<mat-datepicker-toggle matSuffix [for]="crtdt2"></mat-datepicker-toggle>
+										<mat-datepicker #crtdt2></mat-datepicker>
+										<mat-error>Payment Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+						</div> -->
+					</div>
+					<!-- Payment End -->
+
+					<!-- <div class="form-group kt-form__group row"> -->
+					<!-- <div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-checkbox [(ngModel)]="isStatus" (change)="changeStatus()" formControlName="status">Paid
+							</mat-checkbox>
+						</div> -->
+					<!-- <div class="col-lg-6 kt-margin-bottom-20-mobile">
+							<mat-form-field class="mat-form-field-fluid">
+								<mat-select placeholder="Print Size" formControlName="printSize">
+									<mat-option *ngFor="let list of printOptions" [value]="list.value">{{ list.name }}</mat-option>
+								</mat-select>
+								<mat-error>
+									Print Size is
+									<strong>required</strong>
+								</mat-error>
+							</mat-form-field>
+						</div> -->
+
+					<!-- </div> -->
+				</div>
+			</form>
+		</div>
+	</kt-portlet-body>
+</kt-portlet>

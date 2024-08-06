@@ -1,0 +1,326 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/billCom']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Billing Commercial Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="billCom">
+						<form [formGroup]="billComForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Unit" formControlName="unit" #unt>
+													<mat-option *ngFor="let item of unitResult" [value]="item._id" >
+														{{item.cdunt | uppercase }} - {{item.customer.namaToko | titlecase}}
+													</mat-option>
+												</mat-select>
+												<mat-error>Unit is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+											
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile" formGroupName="power">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Electricity Meter" formControlName="powerMeter"/>
+												<mat-error>Electricity Meter is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile" formGroupName="water">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Water Meter" formControlName="waterMeter"/>
+												<mat-error>Water Meter is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Total Billing (Rp.)" formControlName="totalBilling"/>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Billing No." formControlName="billing_number"/>
+												<mat-error>Billing No. is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field>
+												<input matInput [matDatepicker]="crtdt" placeholder="Created Date" formControlName="created_date" (dateInput)="addEvent('input', $event)" (dateChange)="addEvent('change', $event)"/>
+												<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+												<mat-datepicker #crtdt></mat-datepicker>
+												<mat-error>Contract date is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field>
+												<input matInput [matDatepicker]="billdate" placeholder="Billing Date"  formControlName="billing_date"/>
+												<mat-datepicker-toggle matSuffix [for]="billdate"></mat-datepicker-toggle>
+												<mat-datepicker #billdate></mat-datepicker>
+												<mat-error>Billing date is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-3 kt-margin-bottom-20-mobile">
+											<mat-form-field>
+												<input matInput [matDatepicker]="ddate" placeholder="Billing Due Date" formControlName="due_date"/>
+												<mat-datepicker-toggle matSuffix [for]="ddate"></mat-datepicker-toggle>
+												<mat-datepicker #ddate></mat-datepicker>
+												<mat-error>Due date is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-checkbox [(ngModel)]="isPaid" formControlName="isPaid">Paid</mat-checkbox>
+									</div>
+									</div>
+								</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Electricity Consumption
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="billCom">
+						<form *ngIf="billComForm" [formGroup]="billComForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Power Rate" formControlName="powerRate"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Total Fee" formControlName="allPowerAmount"/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Start Meter (kWh)" formControlName="startPower"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="End Meter (kWh)" formControlName="endPower"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption" formControlName="usePower"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption Fee (Rp.)" formControlName="useAmount"/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Service Charge (%)" formControlName="sc"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Service Charge Fee (Rp.)" formControlName="scAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="PPJU (%)" formControlName="ppju"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="PPJU Fee (Rp.)" formControlName="ppjuAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="power">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Loss (%)" formControlName="loss" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Loss Fee (Rp.)" formControlName="lossAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Water Consumption
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="billCom">
+						<form *ngIf="billComForm" [formGroup]="billComForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row"  formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Rate" formControlName="waterRate"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Total Consumption" formControlName="allWaterAmount"/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile"  >
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Start Meter (m3)" formControlName="startWater"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="End Meter (m3)" formControlName="endWater"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption" formControlName="useWater"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Consumption Fee (Rp.)" formControlName="useWaterAmount"/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Administration (Rp.)" formControlName="maintenance"/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Maintenance (Rp.)" formControlName="administration"/>
+										</mat-form-field>
+									</div>
+								</div>
+
+								<div class="form-group kt-form__group row" formGroupName="water">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Management (%)" formControlName="dirtyWater" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Water Management Fee (Rp.)" formControlName="dirtyWaterAmount" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					IPL Detail
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="billCom">
+						<form *ngIf="billCom" [formGroup]="billComForm" class="kt-form kt-form--group-seperator-dashed">
+								<div class="form-group kt-form__group row" formGroupName="ipl">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Unit Size" formControlName="unitSize" />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="IPL" formControlName="ipl"/>
+											<span matPrefix>Rp&nbsp;</span>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Month IPL" formControlName="monthIpl"/>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Total IPL" formControlName="allIpl"/>
+											<span matPrefix>Rp&nbsp;</span>
+										</mat-form-field>
+									</div>
+								</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

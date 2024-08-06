@@ -1,0 +1,81 @@
+<div class="sty-default container">
+  <h1 class="sty-default qt-fnt text-center" mat-dialog-title>Closing Control</h1>
+  <hr>
+  <div mat-dialog-content class="title-header">
+    <table>
+      <tr class="mt-3">
+        <td>Cashier Name </td>
+        <td> : {{profileCashier.name | titlecase}}</td>
+      </tr>
+      <tr class="mt-3">
+        <td>Login Date </td>
+        <td> : {{profileCashier.loginDate}} - {{profileCashier.loginDateTime}}</td>
+      </tr>
+      <tr class="mt-3">
+        <td>Opening Cash </td>
+        <td> : Rp. {{dataSend?.cashAmount | currency:"idr":""}}</td>
+      </tr>
+      <tr class="mt-3">
+        <td class="font-weight-bold">Total Transaction </td>
+        <td class="font-weight-bold"> : Rp. {{dataSend?.totalTransaction | currency:"idr":""}}</td>
+      </tr>
+    </table>
+    <hr>
+    <h5>Detail Transaction</h5>
+    <div class="row p-0 m-0">
+      <table class="col-lg-7 p-0">
+        <!-- Cash Start -->
+        <tr class="mt-3">
+          <td class="font-weight-bold">1. Cash </td>
+          <td class="font-weight-bold"> : Rp. {{dataSend?.detailTransaction.cash | currency:"idr":""}}</td>
+        </tr>
+        <!-- Cash End -->
+
+        <!-- Debit Start -->
+        <tr class="mt-3">
+          <td class="font-weight-bold">2. Debit </td>
+          <td class="font-weight-bold"> : Rp. {{dataSend?.detailTransaction.debit | currency:"idr":""}}</td>
+        </tr>
+        <tr *ngFor="let item of resultDebit">
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;- {{item.name}} </td>
+          <td> : Rp. {{item.value | currency:"idr":""}}</td>
+        </tr>
+        <!-- Debit End -->
+
+        <!-- Credit Card Start -->
+        <tr class="mt-3">
+          <td class="font-weight-bold">3. Credit Card </td>
+          <td class="font-weight-bold"> : Rp. {{dataSend?.detailTransaction.credit | currency:"idr":""}}</td>
+        </tr>
+        <tr *ngFor="let item of resultCredit">
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;- {{item.name}} </td>
+          <td> : Rp. {{item.value | currency:"idr":""}}</td>
+        </tr>
+        <!-- Credit Card End -->
+
+        <!-- E-Money Start -->
+        <tr class="mt-3">
+          <td class="font-weight-bold">4. E-Money </td>
+          <td class="font-weight-bold"> : Rp. {{dataSend?.detailTransaction.emoney | currency:"idr":""}}</td>
+        </tr>
+        <tr *ngFor="let item of resultEmoney">
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;- {{item.name}} </td>
+          <td> : Rp. {{item.value | currency:"idr":""}}</td>
+        </tr>
+        <!-- E-Money End -->
+
+      </table>
+      <div class="col-lg-5 p-0">
+        <div class="note-open">
+          <h6>Note Opening</h6>
+          <p>{{dataSend?.noteOpening}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div mat-dialog-actions class="actions__container mt-4">
+    <button mat-raised-button (click)="onNoClick()">Keep Login</button>
+    <button mat-raised-button color="primary" (click)="logoutButton()">Logout</button>
+  </div>
+</div>

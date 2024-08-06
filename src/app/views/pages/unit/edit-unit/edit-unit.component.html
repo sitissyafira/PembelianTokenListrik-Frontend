@@ -1,0 +1,261 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/unit']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-building"></i>
+					Unit Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div>
+						<form [formGroup]="unitForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Project Name" formControlName="grpblk" #groupBlock
+												(selectionChange)="blockgroupChange(groupBlock.value)">
+												<mat-option *ngFor="let item of blockGroupResult" [value]="item._id">
+													{{item.grpnm}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Project Name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Block Code" formControlName="blk" #block
+												(selectionChange)="blkChange(block.value)">
+												<mat-option *ngFor="let item of blockResult" [value]="item._id">
+													{{item.cdblk | uppercase }} - {{item.nmblk | titlecase}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Block Code is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Floor Name" formControlName="flr" #floor>
+												<mat-option *ngFor="let item of floorResult" [value]="item._id">
+													{{item.nmflr | titlecase}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Floor Name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Unit Type" formControlName="unttp" #unittype
+												(selectionChange)="getUnitType(unittype.value)">
+												<mat-option *ngFor="let item of unitTypeResult" [value]="item._id">
+													{{item.unttp | titlecase}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Unit Type is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Unit Rate" formControlName="untrt" #unitrate
+												(selectionChange)="getUnitRate(unitrate.value)">
+												<mat-option *ngFor="let item of unitRateResult" [value]="item._id">
+													{{item.unit_rate_name | titlecase}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Unit Rate is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Periode Billing" [formControl]="periodeBillingForm">
+												<mat-option *ngFor="let list of periodeBill" (click)="clickPeriodeBill(list)"
+													[value]="list.value">{{
+													list.name }}</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Unit Name" formControlName="nmunt" autocomplete="off"
+												maxlength="15" />
+											<mat-error>Unit name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Unit Number" formControlName="untnum" (change)="generateCode()"
+												autocomplete="off" maxlength="15" />
+											<mat-error>Unit number is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Unit Code" formControlName="cdunt" />
+											<mat-error>Unit code is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-checkbox name="agree" (change)="toggleChild($event)" formControlName="isChild">
+											Child
+										</mat-checkbox>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-checkbox name="agree" (change)="toggleSewa($event)" formControlName="isSewa">
+											Rental
+										</mat-checkbox>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					Unit Size
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div>
+						<form [formGroup]="unitForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-12 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Unit Size" formControlName="untsqr" autocomplete="off"
+												(keydown)="inputKeydownHandler($event)" (change)="changeRental()" maxlength="20">
+											<span matSuffix>/M<sup>2</sup></span>
+											<mat-error>Unit size is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-dollar-sign"></i>
+					Unit Rate
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div>
+						<form [formGroup]="unitForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Service Rate" formControlName="srvcrate" autocomplete="off"
+												(keydown)="inputKeydownHandler($event)" maxlength="20">
+											<mat-error>Unit Service Rate is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Sinking Fund" formControlName="sinkingfund" autocomplete="off"
+												(keydown)="inputKeydownHandler($event)" maxlength="20">
+											<mat-error>Unit Sinking Fund is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input placeholder="Overstay Rate" formControlName="ovstyrate" autocomplete="off" matInput
+												(keydown)="inputKeydownHandler($event)" maxlength="20">
+											<mat-error>Unit Overstay is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Price" formControlName="price" (change)="changeRental()"
+												autocomplete="off" (keydown)="inputKeydownHandler($event)" maxlength="20">
+											<span matPrefix>Rp&nbsp;</span>
+											<mat-error>Price is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Rental Price" formControlName="rentalPrice" autocomplete="off"
+												(keydown)="inputKeydownHandler($event)" maxlength="20">
+											<span matPrefix>Rp&nbsp;</span>
+											<span matSuffix> / month</span>
+											<mat-error>Rental Price is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

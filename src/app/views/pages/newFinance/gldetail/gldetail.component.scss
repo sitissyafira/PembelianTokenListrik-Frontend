@@ -1,0 +1,52 @@
+.kt-form {
+  margin-bottom: 2em;
+}
+
+.kt-embed {
+  height: 60vh;
+}
+
+.divider {
+  display: inline-block;
+  margin: 0 10px;
+  font-weight: 600;
+}
+
+.form__btn-group {
+  display: flex;
+  justify-content: space-between;
+
+  &__confirm {
+    display: flex;
+    align-items: center;
+    
+    &-loader {
+      display: flex;
+      align-items: center;
+      margin-left: 1em;
+
+      span {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  div {
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .icon {
+        font-size: 18px;
+        margin-right: 10px;
+      }
+    }
+  }
+}
+
+.menu-icon {
+  max-width: 20px;
+  max-height: 20px;
+  margin-right: 10px;
+}

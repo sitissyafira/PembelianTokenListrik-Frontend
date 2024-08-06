@@ -1,0 +1,323 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/trgalon']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				mat-raised-button>
+				<span class="kt-hidden-mobile">{{ trGalon?.deliveryStatus === "open" ? "Approve" : trGalon?.deliveryStatus ===
+					"progress" ? "Delivery" : "Save"}}</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab" [ngClass]="isToken ? 'hidden-electricity' : ''">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="sty-default m-0 p-0"> Transaction Info </p>
+				</ng-template>
+				<!-- tester start -->
+				<!-- tester end -->
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="trGalon" style="overflow: hidden;">
+						<form *ngIf="trGalonForm" [formGroup]="trGalonForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<!-- Update Layout from #START -->
+								<div class="form-group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Select Unit" readonly
+												[matAutocomplete]="unitAuto" [formControl]="viewUnitResult" (keyup)="_onKeyup($event, 'unit')">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.unit" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #unitAuto="matAutocomplete">
+												<mat-option *ngFor="let item of UnitResultFiltered" value="{{item.cdunt | uppercase}}"
+													(click)="_setBlockValue(item, 'unit')">
+													{{item.cdunt | uppercase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-2 kt-margin-bottom-20-mobile"></div>
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Tenant Name" readonly
+												[matAutocomplete]="csmrAuto" [formControl]="viewCstmrResult"
+												(keyup)="_onKeyup($event, 'cstmr')">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.unit" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #csmrAuto="matAutocomplete">
+												<mat-option *ngFor="let item of TenantResultFiltered" value="{{item.cstrmrnm | titlecase}}"
+													(click)="_setBlockValue(item, 'cstmr')">
+													{{item.cstrmrnm | titlecase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- Update Layout from #END -->
+								<!-- Update Layout from #START -->
+								<div class="form-group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="inpField">
+											<input class="sty-default" matInput [matDatepicker]="trdate" placeholder="Transaction Date"
+												disabled (click)="trdate.open()" formControlName="trDate"
+												(dateInput)="addEvent('input', $event)" (dateChange)="addEvent('change', $event)" />
+											<mat-datepicker-toggle matSuffix [for]="trdate"></mat-datepicker-toggle>
+											<mat-datepicker #trdate></mat-datepicker>
+											<mat-error>Transaction date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-2 kt-margin-bottom-20-mobile"></div>
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="number" matInput placeholder="Qty" formControlName="qty" readonly
+												(input)="quantity($event)" />
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- Update Layout from #END -->
+								<!-- Update Layout from #START -->
+								<div class="form-group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile" [hidden]="!isBrand">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Select Merek" disabled />
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile" [hidden]="isBrand">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Select Merek" readonly
+												[matAutocomplete]="brandAuto" [formControl]="viewBrandResult"
+												(keyup)="_onKeyup($event, 'brand')">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.unit" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #brandAuto="matAutocomplete">
+												<mat-option *ngFor="let item of BrandResultFiltered"
+													value="{{item.brand | uppercase}} - {{item.rate | currency: 'IDR' : '' }}"
+													(click)="_setBlockValue(item, 'brand')">
+													{{item.brand | uppercase }} - {{item.rate | currency: "IDR" : "" }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-2 kt-margin-bottom-20-mobile"></div>
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="{{'Total Transaction (Rp.) + PPN ' +  ppnValue + ' %' }}"
+													formControlName="totalTr" readonly /> -->
+											<input matInput readonly
+												placeholder="{{isChangeToPPN ? ('Total Transaction (Rp.) + PPN ' +  ppnValue + ' %') : ('Total Transaction (Rp.)') }}"
+												[value]="isChangeToPPN ? trGalonForm.controls.totalTrAfterPPN.value : trGalonForm.controls.totalTr.value "
+												readonly />
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- Update Layout from #END -->
+								<!-- Update Layout from #START -->
+								<div class="form-group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="inpField">
+											<input class="sty-default " matInput [matDatepicker]="deliverDate" placeholder="Delivery Date"
+												disabled formControlName="delivery" (click)="deliverDate.open()"
+												(dateInput)="addEventDelivery('input', $event)"
+												(dateChange)="addEventDelivery('change', $event)" />
+											<mat-datepicker-toggle matSuffix [for]="deliverDate"></mat-datepicker-toggle>
+											<mat-datepicker #deliverDate></mat-datepicker>
+											<mat-error>Delivery date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-2 kt-margin-bottom-20-mobile"></div>
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Pay To" disabled formControlName="payment">
+												<mat-option value="kasir">Kasir</mat-option>
+												<mat-option value="transfer">Transfer</mat-option>
+												<mat-option value="billing">Billing</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- Update Layout from #END -->
+								<!-- Update Layout from #START -->
+								<div class="form-group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Paid To" readonly
+												[formControl]="viewBankResult" [matAutocomplete]="bankAuto" (keyup)="_onKeyupBank($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.unit" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #bankAuto="matAutocomplete">
+												<mat-option *ngFor="let item of bankResult" value="{{item.name | titlecase}} - {{item.number }}"
+													(click)="_setBlockValueBank(item)">
+													{{item.name | titlecase}} - {{item.number }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-2 kt-margin-bottom-20-mobile"></div>
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Status Delivery"
+												[value]="changeDeliveryStatus(trGalon?.deliveryStatus)" readonly />
+										</mat-form-field>
+									</div>
+								</div>
+								<!-- Update Layout from #END -->
+								<!-- Upload Image START -->
+								<!-- <div class="form-group kt-form__group row" [hidden]="trGalon?.imageTrGalon ? true: false">
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+
+										<label class="btn btn-default">
+											<input class="sty-default" type="file" (change)="selectFile($event)" />
+										</label>
+										<div class="file-upload">
+											<button mat-raised-button color="primary" class="upload-btn" [disabled]="!selectedFiles"
+												(click)="upload()">
+												Upload
+											</button>
+										</div>
+										<br>
+										<div class="progress">
+											<mat-progress-bar class="progress-bar" mode="determinate" [value]="uploadProgress"
+												*ngIf="uploadProgress">
+											</mat-progress-bar>
+											<mat-icon class="cancel-upload" (click)="cancelUpload()" *ngIf="uploadProgress">delete_forever
+											</mat-icon>
+
+										</div>
+										<div class="alert alert-light" role="alert">{{ message }}</div>
+									</div>
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+										<img [src]="imageSrc" *ngIf="imageSrc" style="height:150px; width:150px">
+									</div>
+									<div class="col-lg-10 kt-margin-bottom-20-mobile">
+										<mat-form-field class="invisible">
+											<input matInput placeholder="Photo Meter Url" formControlName="urlmeter" autocomplete="off"
+												maxlength="200" readonly />
+											<mat-error>Photo Meter must be
+												<strong>uploaded</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div> -->
+								<!-- Upload Image END -->
+								<!-- NEW STYLE UPLOAD IMAGE START -->
+								<div class="form-group kt-form__group row" [hidden]="trGalon?.imageTrGalon">
+									<div class="preview col-lg-12 kt-margin-bottom-20-mobile">
+										<div class="preview__container">
+											<div class="preview__container-images">
+												<div *ngFor="let image of images" class="preview__frame">
+													<img [src]="image.url" draggable="false">
+
+													<button class="preview__frame-stack" (click)="removeSelectedFile(image)">
+														<span>Remove Image</span>
+													</button>
+												</div>
+											</div>
+
+											<div class="preview__container-text">
+												<span *ngIf="images.length || myFiles.length"><span class="text-bold">{{ myFiles.length
+														}}</span> images selected.</span>
+												<span *ngIf="images.length === 0 || myFiles.length === 0">No selected image.</span>
+											</div>
+										</div>
+
+										<div class="form-file form-file__container">
+											<label
+												[ngClass]="{'btn btn-primary': true, 'btn-disabled': images.length >= 1 || myFiles.length >= 1}">
+												<i class="fa fa-upload"></i> Select Image
+												<input class="form-file__input" type="file" #fileInput (change)="selectFileUpload($event)"
+													accept="image/*" multiple [disabled]="images.length === 1 || myFiles.length === 1">
+											</label>
+
+											<button *ngIf="images.length || myFiles.length" type="button" class="btn btn-danger"
+												(click)="clearSelection()">
+												<i class="fa fa-trash"></i> Remove Image
+											</button>
+										</div>
+									</div>
+								</div>
+								<!-- NEW STYLE UPLOAD IMAGE END -->
+								<div class="form-group kt-form__group row paid-toggle ml-3">
+									<!-- Paid -->
+									<div>
+										<p class="m-0 font-weight-bold">Payment : </p>
+										<div class="d-flex mt-2">
+											<input class="sty-default" type="checkbox" id="switch" [checked]="checkedPaid"
+												(change)="paider($event)" /><label for="switch">Toggle</label>
+											<p class="ml-2">Paid</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					<p class="sty-default m-0 p-0"> Image</p>
+				</ng-template>
+				<!-- START -->
+				<div>
+					<div class="kt-form__section kt-form__section--first row">
+						<div class="form-group kt-form__group col-md-6 img-stylern1">
+							<h3>
+								PAYMENT CONFIRMATION
+							</h3>
+							<div class="form-image-container">
+								<a *ngFor='let image of images' href="{{image}}" target="blank">
+									<img crossorigin="anonymous" src="{{image}}"
+										[ngClass]="trGalon?.imageTrGalon !== null ? 'imgStyle': 'tes'">
+								</a>
+								<div class="no-image" *ngIf="!trGalon?.imageTrGalon">
+									<span>No attached image</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group kt-form__group col-md-6 img-stylern2">
+							<h3>
+								ORDER CONFIRMATION</h3>
+							<div class="form-image-container">
+								<a *ngFor='let image of imagesDelivery' href="{{image}}" target="blank">
+									<img crossorigin="anonymous" src="{{image}}"
+										[ngClass]="trGalon?.imageTrGalon !== null ? 'imgStyle': 'tes'">
+								</a>
+								<div class="no-image" *ngIf="!trGalon?.imageDelivery">
+									<span>No attached image</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END -->
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

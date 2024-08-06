@@ -1,0 +1,95 @@
+<kt-portlet>
+  
+  <!-- Portlet Header -->
+  <kt-portlet-header title="Cash Flow" class="kt-portlet__head--lg">
+  </kt-portlet-header>
+  
+	<kt-portlet-body>
+    <div class="kt-form">
+      <mat-form-field>
+        <input
+          matInput
+          [matDatepicker]="startDate"
+          placeholder="Start date"
+          (focus)="startDate.open()"
+          (dateInput)="addDate('start', $event)"
+          (dateChange)="addDate('start', $event)"
+          #startDate
+        >
+        <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+        <mat-datepicker #startDate></mat-datepicker>
+      </mat-form-field>
+      
+      <span class="divider"> - </span>
+      
+      <mat-form-field>
+        <input
+          matInput
+          [matDatepicker]="endDate"
+          placeholder="End date"
+          (focus)="endDate.open()"
+          (dateInput)="addDate('end', $event)"
+          (dateChange)="addDate('end', $event)"
+          #endDate
+        >
+        <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+        <mat-datepicker #endDate></mat-datepicker>
+      </mat-form-field>
+    
+      <div class="d-flex flex-column flex-wrap mb-3 p-4 border border-secondary">
+        <p class="font-italic">Choose Column</p>
+        <div class="d-flex flex-wrap">
+          <mat-checkbox class="w-25 p-2 font-weight-bold" 
+            (change)="$event ? masterToggle() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+          >
+            All
+          </mat-checkbox>
+          <mat-checkbox class="w-25 p-2" 
+            *ngFor="let list of columnsList; let id = index" 
+            (click)="$event.stopPropagation()"
+            (change)="$event ? selection.toggle(list) : null"
+            [checked]="selection.isSelected(list)" 
+          >
+            {{ list }}
+          </mat-checkbox>
+        </div>
+      </div>
+      <div class="form__btn-group">
+        <div class="form__btn-group__confirm">
+          <button mat-flat-button (click)="getPreviewSource()" color="primary" [disabled]="!valid || loading.status">
+            Export PDF
+          </button>
+
+          <div *ngIf="loading.status" class="form__btn-group__confirm-loader">
+            <mat-spinner [diameter]="20"></mat-spinner>
+            <span>Preparing document preview</span>
+          </div>
+        </div>
+
+        <div *ngIf="preview.status">
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="download" [disabled]="loading.status">
+            <span class="icon">
+              <i class="flaticon2-download"></i>
+            </span>
+            <span>download</span>
+          </button>
+          <mat-menu #download>
+            <button mat-menu-item (click)="downloadFile('pdf')">
+              <img class="menu-icon" src="assets/media/icons/pdf-file.png" alt="spreadsheet">
+              PDF
+            </button>
+            <!-- <button mat-menu-item (click)="downloadFile('spreadsheet')">
+              <img class="menu-icon" src="assets/media/icons/spreadsheet.png" alt="spreadsheet">
+              Excel
+            </button> -->
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+
+    <iframe *ngIf="preview.status" class="kt-embed" [src]="preview.src"></iframe>
+  </kt-portlet-body>
+  
+</kt-portlet>

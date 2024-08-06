@@ -1,0 +1,390 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<button  (click)="goBackWithId()" class="btn btn-secondary kt-margin-r-10"
+				mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</button>
+			<a href="javascript:;" class="kt-margin-r-10" (click)="reset()" [disabled]="loading" mat-raised-button>
+				<i class="la la-cog"></i>
+				<span class="kt-hidden-mobile">Reset</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Customer Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="renter">
+						<form *ngIf="renterForm" [formGroup]="renterForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-12 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Guest Customer" formControlName="cstmr" #cst
+												(selectionChange)="getSingleCustomer(cst.value)">
+												<mat-option *ngFor="let item of customerResult" [value]="item._id">
+													{{item.cstrmrnm}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div> -->
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Select Guest Customer" [value]="valCstmr.gstCust" disabled />
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Customer Name" formControlName="contact_name" /> -->
+											<input matInput placeholder="Customer Name" [value]="valCstmr.custName" disabled />
+											<mat-error>Customer name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Address" formControlName="contact_address" /> -->
+											<input matInput placeholder="Address" [value]="valCstmr.addr" disabled />
+											<mat-error>Address is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Regency" formControlName="contact_city" /> -->
+											<input matInput placeholder="Regency" [value]="valCstmr.rgncy" disabled />
+											<mat-error>Regency is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Phone Number" formControlName="contact_phone" /> -->
+											<input matInput placeholder="Phone Number" [value]="valCstmr.phone" disabled />
+											<mat-error>Phone Number is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Email " formControlName="contact_email" /> -->
+											<input matInput placeholder="Email " [value]="valCstmr.email" disabled />
+											<mat-error>Email is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input matInput placeholder="Email " formControlName="contact_email" /> -->
+											<input matInput placeholder="Zip Code" [value]="valCstmr.pstCode" disabled />
+
+										</mat-form-field>
+									</div>
+									<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Zip Code" formControlName="contact_zip">
+												<mat-option *ngFor="let item of postalcodeResult" [value]="item.kelurahan">
+													{{ item.kodepos}} - {{item.kelurahan}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div> -->
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Id Card No. (NIK/KITAS)" formControlName="ktp" />
+											<mat-error>Id Card No. (NIK/KITAS) is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Tax Number (NPWP)" formControlName="npwp" />
+											<mat-error>Tax Number (NPWP) is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-file-contract"></i>
+					Contract Info
+				</ng-template>
+				<ng-template matTabContent>
+					<form [formGroup]="renterForm" class="kt-form kt-form--group-seperator-dashed">
+						<div class="form-group kt-form__group row">
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput [matDatepicker]="condate" placeholder="Check in" formControlName="checkIn" />
+									<mat-datepicker-toggle matSuffix [for]="condate"></mat-datepicker-toggle>
+									<mat-datepicker #condate></mat-datepicker>
+									<mat-error>Check In is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput [matDatepicker]="conexp" placeholder="Check out" formControlName="checkOut" />
+									<mat-datepicker-toggle matSuffix [for]="conexp"></mat-datepicker-toggle>
+									<mat-datepicker #conexp></mat-datepicker>
+									<mat-error>Check Out is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Contract Number" formControlName="contract_number" />
+									<mat-error>Contract no. is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Rental Price" formControlName="rentalAmount" type="number" />
+									<span matPrefix>Rp&nbsp;</span>
+									<span matSuffix> / month</span>
+									<mat-error>Rental Price is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div> -->
+						</div>
+						<div class="form-group kt-form__group row">
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<mat-select placeholder="Select Block Id" formControlName="blockId" #block
+										(selectionChange)="blkChange(block.value)">
+										<mat-option *ngFor="let item of blockResult" [value]="item._id">
+											{{item.cdblk}}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<mat-select placeholder="Select Floor Id" formControlName="floorId" #floor
+										(selectionChange)="flrChange(floor.value)">
+										<mat-option *ngFor="let item of floorResult" [value]="item._id">
+											{{item.nmflr}}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<mat-select placeholder="Select Unit" formControlName="unit" #unit>
+										<mat-option *ngFor="let item of unitResult" [value]="item._id">
+											{{item.nmunt}}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+
+						<!-- <div class="form-group kt-form__group row">
+							<div class="col-lg-6 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Contract No." formControlName="contract_number" />
+									<mat-error>Contract no. is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-6 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<mat-select placeholder="Select Type Renter" formControlName="typeRenter">
+										<mat-option value="bm">BM</mat-option>
+										<mat-option value="owner">Owner</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div> -->
+
+						<div class="form-group kt-form__group row">
+							<div class="col-lg-6 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Start Electricity Meter" type="number"
+										formControlName="start_electricity_stand" onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+									<mat-error>Electricity Meter is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-6 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Start Water Meter" type="number" formControlName="start_water_stand"
+										onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+									<mat-error>Water Meter is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+						</div>
+					</form>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					Payment Info
+				</ng-template>
+				<ng-template matTabContent>
+					<form [formGroup]="renterForm" class="kt-form kt-form--group-seperator-dashed">
+						<div class="form-group kt-form__group row">
+							<div class="col-lg-3 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<mat-select placeholder="Select Payment Type" formControlName="paymentType">
+										<mat-option value="yearly">Yearly</mat-option>
+										<mat-option value="monthly">Monthly</mat-option>
+										<mat-option value="daily">Daily</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-3 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Due Date" formControlName="paymentTerm" onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+									<mat-error>Due Date is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-3 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Virtual Account No." formControlName="virtualAccount" onkeydown="javascript: return event.keyCode === 8 ||
+									event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+									<mat-error>Virtual Account No. is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-3 kt-margin-bottom-20-mobile">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput placeholder="Bank Account No." formControlName="norek" onkeydown="javascript: return event.keyCode === 8 ||
+									event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+									<mat-error>Virtual Account No. is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+						</div>
+						<div class="form-group kt-form__group row">
+							<div class="col-lg-4 kt-margin-bottom-20-mobile">
+								<mat-checkbox [(ngModel)]="isPkp" (change)="changePKP()" formControlName="isPKP">PKP</mat-checkbox>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" [hidden]="TaxId">
+								<mat-form-field class="mat-form-field-fluid">
+									<input matInput [(ngModel)]="taxvalue" placeholder="Tax Id" formControlName="tax_id" type="number" />
+									<mat-error>Tax Id is
+										<strong>required</strong>
+									</mat-error>
+								</mat-form-field>
+							</div>
+						</div>
+					</form>
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					Receipt Info
+				</ng-template>
+				<ng-template matTabContent>
+					<form [formGroup]="renterForm" class="kt-form kt-form--group-seperator-dashed">
+						<div formGroupName="receipt">
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="bastu">
+								<mat-checkbox formControlName="bastu1">Berita Acara Serah Terima Unit</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="ppp">
+								<mat-checkbox formControlName="ppp1">Perjanjian Pinjam Pakai</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="ba">
+								<mat-checkbox formControlName="ba1">Berita Acara Listrik, Air, Kunci, Kartu Akses</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="bpb">
+								<mat-checkbox formControlName="bpb1">Berita Pemeriksaan Bersama</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="kp">
+								<mat-checkbox formControlName="kp1">Kunci di Pemilik</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="kbm">
+								<mat-checkbox formControlName="kbm1">Kunci di Building Management</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="km">
+								<mat-checkbox formControlName="km1">Kunci Mailbox</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="ac">
+								<mat-checkbox formControlName="ac1">Access Card List ( Studio/1BR/2BR )</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="ap">
+								<mat-checkbox formControlName="ap1">Access Card Pintu ( Studio/1BR/2BR )</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="sm">
+								<mat-checkbox formControlName="sm1">Smart Home</mat-checkbox>
+							</div>
+
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="sv">
+								<mat-checkbox formControlName="sv1">Souvenir</mat-checkbox>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="bph">
+								<mat-checkbox formControlName="bph1">Buku Panduan Huni</mat-checkbox>
+							</div>
+							<div class="col-lg-4 kt-margin-bottom-20-mobile" formGroupName="ksdm">
+								<mat-checkbox formControlName="ksdm1">Kwintansi Security Deposit Maintenance</mat-checkbox>
+							</div>
+						</div>
+					</form>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,436 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/deliveryorder']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<!-- Status (Open) -->
+			<button class="btnPrimary ml-3" (click)="submitForm()">
+				{{deliveryorder?.status === 'sched-for-fix' || deliveryorder?.status === 'resched-for-fix' ?
+				'Visit Fixing' : 'Report Fixing'}}
+			</button>
+			<!-- Status (Waiting For Schedule Survey) -->
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]=" selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="sty-default m-0 p-0">Working Order Info</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div class="hide-scroll" *ngIf="deliveryorder">
+						<form [formGroup]="deliveryorderForm" class="sty-default kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<!-- New Style Deliveryordering START -->
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6 class="mb-4 mt-4 font-weight-bold">Working Order Status</h6>
+									<span class="chip"
+										[ngClass]="deliveryorder?.handledBy === 'tro' ? 'chip--tro': deliveryorder?.handledBy === 'spv' ?
+									'chip--spv' : deliveryorder?.handledBy === 'mgr' ? 'chip--mgr' : deliveryorder?.handledBy === 'mob' ? 'chip--mob' : 'chip--wo' ">
+										{{ moduleTicketing.changeStatus(deliveryorder?.status) }}
+									</span>
+								</div>
+							</div>
+							<hr>
+							<!-- Condition wait for schedule Start -->
+							<div [hidden]="deliveryorder?.status !== 'wait-sched-surv' ? true : false">
+								<h6 class="mb-4 mt-4 font-weight-bold">Engineer Visit Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" matInput [matDatepicker]="survdate" placeholder="Visit Survey Date"
+												(click)="survdate.open()" formControlName="visitDateSurv" autocomplete="off" />
+											<mat-datepicker-toggle matSuffix [for]="survdate"></mat-datepicker-toggle>
+											<mat-datepicker #survdate></mat-datepicker>
+											<mat-error>Visit Survey date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Engineer Survey"
+												[formControl]="viewEnResult" [matAutocomplete]="survAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.engineer" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #survAuto="matAutocomplete">
+												<mat-option *ngFor="let item of FilterEnResult" value="{{item.name | titlecase}}"
+													(click)="_setEngValue(item, 'survey')">
+													{{item.name | titlecase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- Condition wait for schedule End -->
+							<div [hidden]="deliveryorder?.surveyDesc ? false : true">
+								<h6 class="mb-4 mt-4 font-weight-bold">Survey Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Description Survey</h6>
+										<p>{{deliveryorder?.surveyDesc | titlecase}}</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<div [hidden]="deliveryorder?.fixingDesc ? false : true">
+								<h6 class="mb-4 mt-4 font-weight-bold">Fixing Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Description Fixing</h6>
+										<p>{{deliveryorder?.fixingDesc | titlecase}}</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- Add cost condition status (Survey Done) End -->
+
+							<!-- Add cost condition status (Schedule WO) Start -->
+							<div [hidden]="deliveryorder?.status !== 'wait-sched-wo' ? true : false">
+								<!-- Visit Fixing and select enginer Fixing START -->
+								<h6 class="mb-4 mt-4 font-weight-bold">Schedule Fixing</h6>
+								<div class="form-group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" matInput [matDatepicker]="fixdate" placeholder="Visit Fixing Date"
+												(click)="fixdate.open()" formControlName="visitDateFixing" autocomplete="off" />
+											<mat-datepicker-toggle matSuffix [for]="fixdate"></mat-datepicker-toggle>
+											<mat-datepicker #fixdate></mat-datepicker>
+											<mat-error>Visit Fixing date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3"></div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Engineer Fixing"
+												[formControl]="viewEnResult" [matAutocomplete]="fixingAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.engineer" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #fixingAuto="matAutocomplete">
+												<mat-option *ngFor="let item of FilterEnResult" value="{{item.name | titlecase}}"
+													(click)="_setEngValue(item, 'fixing')">
+													{{item.name | titlecase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+								</div>
+								<hr>
+								<!-- Visit Fixing and select enginer Fixing END -->
+							</div>
+							<div [hidden]="deliveryorder?.status !== 'wait-sched-wo' ? true : false">
+								<h6 class="mb-4 mt-4 font-weight-bold">Survey Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Description Survey</h6>
+										<p>{{deliveryorder?.surveyDesc | titlecase}}</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- Add cost condition status (Schedule WO) End -->
+							<!-- Add cost condition status (Wait Approve Manager) Start -->
+							<div [hidden]="deliveryorder?.status !== 'wait-approve-mgr' ? true : false">
+								<h6 class="mb-4 mt-4 font-weight-bold">Approve Engineer</h6>
+								<div class="form-group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" type="text" matInput placeholder="Change Engineer"
+												[formControl]="viewEnResult" [matAutocomplete]="changeAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.engineer" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #changeAuto="matAutocomplete">
+												<mat-option *ngFor="let item of FilterEnResult" value="{{item.name | titlecase}}"
+													(click)="_setEngValue(item, 'change')">
+													{{item.name | titlecase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3"></div>
+									<div class="col-lg-5" [hidden]="checkChangeEngineer">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" matInput placeholder="Change Engineer Description"
+												formControlName="engFixingDesc" />
+											<mat-error>Engginer Desc is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<div [hidden]="deliveryorder?.itemReq.length === 0 ? true : false">
+								<h6 class="mb-4 mt-4 font-weight-bold">Cost Information</h6>
+								<!-- Multi Material START-->
+								<div class="kt-form" *ngFor="let data of deliveryorder?.itemReq">
+									<div class="form-group row">
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<h6>Cost Name</h6>
+											<p>{{data.item | titlecase}}</p>
+										</div>
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<h6>Cost</h6>
+											<p>Rp. {{data.cost | currency:"IDR": ""}}</p>
+										</div>
+									</div>
+								</div>
+								<div class="kt-form">
+									<div class="form-group row">
+										<div class="col-lg-6 kt-margin-bottom-20-mobile"></div>
+										<div class="col-lg-6 kt-margin-bottom-20-mobile">
+											<h6 class="mb-4 mt-4 font-weight-bold">Total Cost</h6>
+											<p>Rp. {{deliveryorder?.ticket.totalCost | currency:"IDR": ""}}</p>
+										</div>
+									</div>
+								</div>
+								<!-- Multi Material END -->
+								<hr>
+							</div>
+							<div [hidden]="deliveryorder?.status !== 'wait-approve-mgr' ? true : false">
+								<h6 class="mb-4 mt-4 font-weight-bold">Survey Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Description Survey</h6>
+										<p>{{deliveryorder?.surveyDesc | titlecase}}</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- Add cost condition status (Wait Approve Manager) End -->
+							<!-- Show Engineer Start -->
+							<!-- (survey) #start -->
+							<div [hidden]="deliveryorder?.engSurvey || deliveryorder?.engFixing ? false : true">
+								<h6 class="mb-4 mt-4 font-weight-bold">Engineer Information</h6>
+								<div class="form-group row" [hidden]="deliveryorder?.engSurvey ? false : true">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Visit Date Survey
+											<span style="color: green;" [hidden]="deliveryorder?.rescheduleDateSurvey ? false : true">
+												(Reschedule)</span>
+										</h6>
+										<p>{{deliveryorder?.rescheduleDateSurvey ? (deliveryorder?.rescheduleDateSurvey | date:"dd/MM/yy") :
+											deliveryorder?.visitDateSurv ? (deliveryorder?.visitDateSurv | date:"dd/MM/y") : ""}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Engineer Survey</h6>
+										<p>{{deliveryorder?.engSurvey ? (deliveryorder?.engSurvey.name | titlecase) : ""}}</p>
+									</div>
+								</div>
+								<div class="form-group row" [hidden]="deliveryorder?.engFixing ? false : true">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Visit Date Fixing
+											<span style="color: green;" [hidden]="deliveryorder?.rescheduleDateFixing? false : true">
+												(Reschedule)</span>
+										</h6>
+										<p>{{deliveryorder?.rescheduleDateFixing? (deliveryorder?.rescheduleDateFixing| date:"dd/MM/yy") :
+											deliveryorder?.visitDateFixing ? (deliveryorder?.visitDateFixing | date:"dd/MM/y") : ""}}</p>
+									</div>
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Engineer Fixing</h6>
+										<p>{{deliveryorder?.engFixing ? (deliveryorder?.engFixing.name | titlecase): ""}}</p>
+									</div>
+								</div>
+								<div class="form-group row" [hidden]="deliveryorder?.rescheduleDescSurvey ? false : true">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Reschedule Survey Description</h6>
+										<p>{{deliveryorder?.rescheduleDescSurvey ? (deliveryorder?.rescheduleDescSurvey | titlecase): ""}}
+										</p>
+									</div>
+								</div>
+								<div class="form-group row" [hidden]="deliveryorder?.rescheduleDescFixing ? false : true">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Reschedule Fixing Description</h6>
+										<p>{{deliveryorder?.rescheduleDescFixing ? (deliveryorder?.rescheduleDescFixing | titlecase): ""}}
+										</p>
+									</div>
+								</div>
+								<div class="form-group row" [hidden]="deliveryorder?.engFixingDesc ? false : true">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Change Engineer Description</h6>
+										<p>{{deliveryorder?.engFixingDesc ? (deliveryorder?.engFixingDesc | titlecase): ""}}</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- (survey) #end -->
+							<!-- (payment info) #start -->
+							<div [hidden]="deliveryorder?.paymentSelection ? false: true">
+								<h6 class="mb-4 mt-4 font-weight-bold">Payment Information</h6>
+								<div class="form-group row">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<h6>Payment Selection
+										</h6>
+										<span class="chip chip--high">
+											{{deliveryorder?.paymentSelection ? deliveryorder?.paymentSelection : " - "}}
+										</span>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- (payment info) #end -->
+							<!-- Show Engineer End -->
+
+							<h6 class="mb-4 mt-4 font-weight-bold">Deliveryorder Information</h6>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Working Order ID</h6>
+									<p>{{deliveryorder?.doId}}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Deliveryorder Date</h6>
+									<p>{{deliveryorder?.createdDate | date:"dd/MM/y"}}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Unit</h6>
+									<p>{{ cdUnit }}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Name" formControlName="contract2" />
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Phone" formControlName="tenant_phone" />
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Email " formControlName="tenant_email" />
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Subject Ticket" formControlName="subject" />
+										<mat-error>Subject is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-3"></div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Location</h6>
+									<p>{{ deliveryorder?.ticket.subDefect.category.name | titlecase }}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Detail Category</h6>
+									<p>{{ deliveryorder?.ticket.subDefect.defect.defect_name | titlecase }}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Sub Detail Category</h6>
+									<p>{{ deliveryorder?.ticket.subDefect.subtype | titlecase }}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Priority</h6>
+									<span class="chip"
+										[ngClass]="deliveryorder?.ticket.priority === 'Medium' ? 'chip--medium' : deliveryorder?.ticket.priority === 'High' ? 'chip--high' : 'chip--low'">
+										{{deliveryorder?.ticket.priority }}
+									</span>
+								</div>
+								<div class="col-lg-5">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Description" formControlName="description" />
+										<mat-error>Description is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row" [hidden]="reportFixCheck">
+								<div class="preview col-lg-12 kt-margin-bottom-20-mobile">
+									<div class="preview__container">
+										<div class="preview__container-images">
+											<div *ngFor="let image of images" class="preview__frame">
+												<img [src]="image.url" draggable="false">
+
+												<button class="preview__frame-stack" (click)="removeSelectedFile(image)">
+													<span>Remove Image</span>
+												</button>
+											</div>
+										</div>
+
+										<div class="preview__container-text">
+											<span *ngIf="images.length || myFiles.length"><span class="text-bold">{{ myFiles.length
+													}}</span> images selected.</span>
+											<span *ngIf="images.length === 0 || myFiles.length === 0">No selected image.</span>
+										</div>
+									</div>
+
+									<div class="form-file form-file__container">
+										<label
+											[ngClass]="{'btn btn-primary': true, 'btn-disabled': images.length >= 5 || myFiles.length >= 5}">
+											<i class="fa fa-upload"></i> Select Image
+											<input class="form-file__input" type="file" #fileInput (change)="selectFile($event)"
+												accept="image/*" multiple [disabled]="images.length === 5 || myFiles.length === 5">
+										</label>
+
+										<button *ngIf="images.length || myFiles.length" type="button" class="btn btn-danger"
+											(click)="clearSelection()">
+											<i class="fa fa-trash"></i> Remove Image
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- New Style Deliveryordering END -->
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					<p class="sty-default m-0 p-0">Image Fixing</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<div>
+						<div class="kt-form__section kt-form__section--first">
+							<div class="form-group kt-form__group row">
+								<div class="form-image-container">
+									<a *ngFor='let image of images' href="{{ image }}" target="_blank">
+										<img crossorigin="anonymous" src="{{ image }}"
+											style="height: 250px; width: 250px; margin-left: 20px; margin-top: 20px;">
+									</a>
+									<div class="no-image" *ngIf="images.length < 1">
+										<span>No attached image</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

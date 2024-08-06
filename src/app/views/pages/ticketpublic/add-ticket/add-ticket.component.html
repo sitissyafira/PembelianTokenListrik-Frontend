@@ -1,0 +1,231 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/publicticket']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="submitForm()"
+				[disabled]="loadingData" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="sty-default m-0 p-0">Ticket Info</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div class="hide-scroll" *ngIf="ticket">
+						<form [formGroup]="ticketForm" class="sty-default kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<!-- New Style Ticketing START -->
+							<h6 class="mb-4 mt-4 font-weight-bold">Ticket Information</h6>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Inspection ID</h6>
+									<p>{{codenum | uppercase}}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Ticket Date</h6>
+									<p>{{date1.value | date:"dd/MM/y"}}</p>
+								</div>
+							</div>
+							<!-- form status creator -->
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-10-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select class="sty-default" placeholder="Create by" formControlName="statusCreator">
+											<mat-option value="tro">Tro</mat-option>
+											<mat-option value="cs">Cs</mat-option>
+											<mat-option value="admin engineer">Admin Engineer</mat-option>
+										</mat-select>
+										<mat-error>Status Creator is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Creator Name" formControlName="nameInput" />
+										<mat-error>Creator Name is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<!-- form status creator -->
+							<div class="form-group row">
+								<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select class="sty-default" placeholder="Select Unit" formControlName="unit" #unt
+											(selectionChange)="getUnitId(unt.value)">
+											<mat-option *ngIf="loading.unit">
+												<div class="opt-loader">
+													<mat-spinner [diameter]="15"></mat-spinner>
+												</div>
+											</mat-option>
+											<mat-option *ngIf="!loading.unit && !unitResult.length">Item is empty</mat-option>
+											<mat-option *ngFor="let item of unitResult" [value]="item._id">
+												{{item.cdunt | uppercase }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div> -->
+								<!-- Auto Complete Start -->
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" type="text" matInput placeholder="Select Unit"
+											[formControl]="viewUntResult" [matAutocomplete]="survAuto" (keyup)="_onKeyup($event)">
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<div *ngIf="loadingDatas.unt" class="form-loader">
+											<mat-spinner [diameter]="10"></mat-spinner>
+										</div>
+										<mat-autocomplete #survAuto="matAutocomplete">
+											<mat-option *ngFor="let item of FilterUntResult" value="{{item.cdunt | titlecase}}"
+												(click)="getUnitId(item._id)">
+												{{item.cdunt | titlecase }}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+								<!-- Auto Complete End -->
+								<div class="col-lg-3"></div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Name" formControlName="contract2" />
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Phone" formControlName="tenant_phone" />
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Email " formControlName="tenant_email" />
+									</mat-form-field>
+								</div>
+							</div>
+							<!-- Update add index start -->
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" onkeyup="this.value=this.value.replace(/[^\d]/,'')" matInput
+											placeholder="Phone Creator" formControlName="phoneNumber" />
+										<mat-error>Phone is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-5 kt-margin-bottom-20-mobile">
+									<div class="col-lg-6 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input class="sty-default" matInput placeholder="Name" formControlName="tenantName" />
+											<mat-error>Name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select class="sty-default" placeholder="Status Tenant" formControlName="statusTenant">
+											<mat-option value="pemilik">Pemilik</mat-option>
+											<mat-option value="penyewa">Penyewa</mat-option>
+											<mat-option value="keluarga">Keluarga</mat-option>
+										</mat-select>
+										<mat-error>Status Creator is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-5">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Description" formControlName="description" />
+										<mat-error>Description is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Subject Ticket" formControlName="subject" />
+										<mat-error>Subject is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select class="sty-default" placeholder="Priority" formControlName="priority">
+											<mat-option value="Low">Low</mat-option>
+											<mat-option value="Medium">Medium</mat-option>
+											<mat-option value="High">High</mat-option>
+										</mat-select>
+										<!-- <mat-error>Status Creator is
+											<strong>required</strong>
+										</mat-error> -->
+									</mat-form-field>
+								</div>
+							</div>
+							<!-- Update add index end -->
+							<div class="form-group kt-form__group row">
+								<div class="preview col-lg-12 kt-margin-bottom-20-mobile">
+									<div class="preview__container">
+										<div class="preview__container-images">
+											<div *ngFor="let image of images" class="preview__frame">
+												<img [src]="image.url" draggable="false">
+
+												<button class="preview__frame-stack" (click)="removeSelectedFile(image)">
+													<span>Remove Image</span>
+												</button>
+											</div>
+										</div>
+
+										<div class="preview__container-text">
+											<span *ngIf="images.length || myFiles.length"><span class="text-bold">{{ myFiles.length
+													}}</span> images selected.</span>
+											<span *ngIf="images.length === 0 || myFiles.length === 0">No selected image.</span>
+										</div>
+									</div>
+
+									<div class="form-file form-file__container">
+										<label
+											[ngClass]="{'btn btn-primary': true, 'btn-disabled': images.length >= 5 || myFiles.length >= 5}">
+											<i class="fa fa-upload"></i> Select Image
+											<input class="form-file__input" type="file" #fileInput (change)="selectFile($event)"
+												accept="image/*" multiple [disabled]="images.length === 5 || myFiles.length === 5">
+										</label>
+
+										<button *ngIf="images.length || myFiles.length" type="button" class="btn btn-danger"
+											(click)="clearSelection()">
+											<i class="fa fa-trash"></i> Remove Image
+										</button>
+									</div>
+								</div>
+							</div>
+							<!-- New Style Ticketing END -->
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

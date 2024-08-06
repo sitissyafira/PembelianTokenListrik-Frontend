@@ -1,0 +1,91 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/checkpoint']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Checkpoint Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="checkpoint">
+						<form [formGroup]="checkpointForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Checkpoint Code" formControlName="code" autocomplete="off" maxlength="50"/>
+												<mat-error>Checkpoint ID is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Checkpoint Name" formControlName="name" autocomplete="off" maxlength="50"/>
+												<mat-error>Checkpoint Name is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Type" formControlName="type" #type (selectionChange)="setItem(type.value, 'type')">
+													<mat-option *ngFor="let item of typeOptions" [value]="item" >
+													{{item | uppercase}}
+												</mat-option>
+												</mat-select>
+											</mat-form-field>
+										</div>
+									</div>
+									<div class="form-group kt-form__group row">
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Tower" [formControl]="viewTowerControl" [matAutocomplete]="twrAuto" maxlength="50" (keyup)="_filterAuto($event, 'tower')"/>
+												<mat-autocomplete #twrAuto="matAutocomplete">
+													<mat-option *ngFor="let item of TowerResultFiltered" value="{{item.nmblk | uppercase }}" (click)="setItem(item, 'twr')">
+														{{item.nmblk | uppercase }}
+													</mat-option>
+												</mat-autocomplete>
+												<mat-error>Tower is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Lantai" [formControl]="viewFloorControl" [matAutocomplete]="flrAuto" maxlength="50" (keyup)="_filterAuto($event, 'floor')"/>
+												<mat-autocomplete #flrAuto="matAutocomplete">
+													<mat-option *ngFor="let item of FloorResultFiltered" value="{{item.nmflr | uppercase }}" (click)="setItem(item, 'flr')">
+														{{item.nmflr | uppercase }}
+													</mat-option>
+												</mat-autocomplete>
+												<mat-error>Lantai is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div>
+									</div>
+								</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

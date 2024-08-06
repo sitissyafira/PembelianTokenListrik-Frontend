@@ -1,0 +1,303 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/purchaseOrder']" class="btn btn-secondary kt-margin-r-10" mat-raised-button >
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)" [disabled]="loading" mat-raised-button >
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Purchase Order Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="purchaseOrder">
+						<form [formGroup]="purchaseOrderForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000" (close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="date" placeholder="Date" formControlName="date" (dateChange)="receivedHandler($event)"/>
+											<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+											<mat-datepicker #date></mat-datepicker>
+											<mat-error>Date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Type PO" formControlName="typePO" #typepo (selectionChange)="typePOChange(typepo.value)">
+												<mat-option *ngIf="loadingTypePO">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner>
+													</div>
+													</mat-option>
+													<mat-option *ngIf="!loadingTypePO && !typePOList.length">Item is empty</mat-option>
+													<mat-option *ngFor="let item of typePOList" [value]="item.type_value" >
+													{{item.type_label}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile" *ngIf="purchaseOrderForm.get('typePO').value == 'purchase_request'">
+										<mat-form-field class="mat-form-field-fluid" >
+											<input type="text" matInput placeholder="Search Purchase Request" formControlName="pr_name" [matAutocomplete]="prAuto" (keyup)="filterPR($event)">
+											<mat-autocomplete #prAuto="matAutocomplete">
+												<mat-option *ngFor="let item of PRResultFiltered" value="{{item.purchase_request_no | uppercase }}" (click)="pronChange(item)">
+													{{item.purchase_request_no | uppercase }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group">
+									<div class="kt-margin-top-20-mobile">
+										<mat-label class="fw-bold">General Info</mat-label>
+									</div>
+									<div class="container border rounded">
+										<div class="row kt-margin-top-20-mobile">
+											<div class="col-lg-6 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput placeholder="Purchase Order No." formControlName="po_no" autocomplete="off" maxlength="50"/>
+													<mat-error>Purchase Order No. is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-6 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input type="text" matInput placeholder="Search Vendor" formControlName="vendor_name" [matAutocomplete]="vendorAuto" (keyup)="filterVendor($event)">
+													<mat-autocomplete #vendorAuto="matAutocomplete">
+														<mat-option *ngFor="let item of VendorResultFiltered" value="{{item.vendor_name | uppercase }}" (click)="vendorchange(item)">
+														{{item.vendor_name | uppercase }}
+														</mat-option>
+													</mat-autocomplete>
+													
+												</mat-form-field>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-lg-6 kt-margin-bottom-10-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-label class="fw-bold">Description</mat-label>
+													<textarea matInput placeholder="Description" autocomplete="off" formControlName="vendorDesc" rows="4"></textarea>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-6 kt-margin-bottom-10-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-label class="fw-bold">Vendor Address</mat-label>
+													<textarea matInput class="inpt-custom" autocomplete="off" rows="4" formControlName="vendorAddress"></textarea>
+												</mat-form-field>
+											</div>
+										</div>
+										<div class="mat-table__wrapper">
+											<ng-container formArrayName="products">
+												<mat-table class="lmat-elevation-z8" mat-table #myTable [dataSource]="productList">
+													<ng-container matColumnDef="product_brand">
+														<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+															<div class="column">
+																<mat-label>Search Product Brand</mat-label>
+																<input type="text" formControlName="product" matInput placeholder="Search Product Brand" [matAutocomplete]="productAuto" (keyup)="filterProduct($event)">
+																<mat-autocomplete #productAuto="matAutocomplete">
+																	<mat-option *ngFor="let item of ProductResultFiltered" value="{{item.brand_name | uppercase }}" (click)="onChangeProduct(item, id, 'product')">
+																		{{item.brand_name | uppercase }}
+																	</mat-option>
+																</mat-autocomplete>
+															</div>
+														</mat-cell>
+													</ng-container>
+
+													<ng-container matColumnDef="qty">
+														<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+															<div class="column">
+																<mat-label class="fw-bold">Qty</mat-label>
+																<input formControlName="qty" type="number" placeholder="QTY" (input)="onChangeProduct($event, id, 'qty')">
+															</div>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="uom">
+														<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+															<div class="column">
+																<mat-label class="fw-bold">Search UOM</mat-label>
+																<input formControlName="uom" type="text" matInput placeholder="Search UOM" [matAutocomplete]="uomAuto" (keyup)="filterUom($event)">
+																<mat-autocomplete #uomAuto="matAutocomplete">
+																	<mat-option *ngFor="let item of uomFiltered" value="{{item.uom | uppercase }}" (click)="onChangeProduct(item, id, 'uom')">
+																		{{item.uom | uppercase }}
+																	</mat-option>
+																</mat-autocomplete>
+															</div>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="price">
+														<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+															<div class="column">
+																<mat-label class="fw-bold">Price (Rp)</mat-label>
+																<input formControlName="price" type="number" placeholder="Price" (input)="onChangeProduct($event, id, 'price')">
+															</div>
+														</mat-cell>
+													</ng-container>
+													<ng-container matColumnDef="subTotal">
+														<mat-cell *matCellDef="let element; let id = index" [formGroup]="element">
+															<div class="column">
+																<mat-label class="fw-bold">Sub Total (Rp)</mat-label>
+																<input formControlName="subTotal" type="number" placeholder="SubTotal" (input)="onChangeProduct($event, id, 'subTotal')">
+															</div>
+														</mat-cell>
+													</ng-container>
+													
+													<ng-container matColumnDef="actions">
+														<mat-cell *matCellDef="let element; let id = index">
+															<button mat-icon-button color="primary" matTooltip="Add Field" type="button" (click)="addProductToList(id)">
+																<mat-icon>add</mat-icon>
+															</button>
+															<button mat-icon-button color="warn" matTooltip="Delete Field" type="button"
+																[disabled]="id === 0" (click)="removeProductFromList(id)">
+																<mat-icon>delete</mat-icon>
+															</button>
+														</mat-cell>
+													</ng-container>
+
+													<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+												</mat-table>
+											</ng-container>
+										</div>
+										<div class="col-lg-6 kt-margin-bottom-10-mobile">
+											<div class="preview__container">
+												<div class="preview__container-images">
+													<div *ngFor="let image of documents" class="preview__frame">
+														<a href={{documents[0].url}} target="_blank" *ngIf="documents[0] != null" type="application/pdf">
+															<img src={{documents[0].url}} *ngIf="!isPreviewPdf ">
+															<pdf-viewer [src]="documents[0].url"
+																  [render-text]="true"
+																  [original-size]="false"
+																  class="pdf-previewer"
+																*ngIf="isPreviewPdf"
+															  ></pdf-viewer>
+														</a>
+											
+														<button class="preview__frame-stack" (click)="removeSelectedDocument(image)">
+															<span>Remove Document</span>
+														</button>
+													</div>
+												</div>
+											</div>
+											<div class="col-lg-5">
+												
+											</div>
+											<div class="col-lg-5" *ngIf="documents.length > 0">
+												<mat-label>{{documents[0].name}}</mat-label>
+											</div>
+											<div class="form-file form-file__container kt-margin-l-10 kt-margin-bottom-20-mobile kt-margin-top-20-mobile">
+												<label [ngClass]="{'btn btn-primary': true, 'btn-disabled': documents.length >= 1 }" *ngIf="documents.length === 0">
+													<i class="fa fa-upload"></i> Upload Offers
+													<input class="form-file__input" type="file" #documentInput (change)="selectDocument($event)" accept="image/* , .pdf"
+														[disabled]="documents.length === 1" >
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="form-group kt-form__group">
+									<div class="kt-margin-top-20-mobile">
+										<mat-label class="fw-bold">Payment Info</mat-label>
+									</div>
+									<div class="container border rounded">
+										<div class="row kt-margin-top-20-mobile">
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput type="number" placeholder="PPN (Rp)" formControlName="ppn" autocomplete="off" maxlength="50" (keyup)="calculateGrandTotal()"/>
+													<mat-error>PPN is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput type="number" placeholder="PPH (Rp)" formControlName="pph" autocomplete="off" maxlength="50" (keyup)="calculateGrandTotal()"/>
+													<mat-error>PPH is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput type="number" placeholder="Shipping Cost (Rp)" formControlName="shippingCost" autocomplete="off" maxlength="50" (keyup)="calculateGrandTotal()"/>
+													<mat-error>Shipping Cost is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-select placeholder="Discount Type" formControlName="discountType" #discounttype (selectionChange)="changeDiscountType(discounttype.value)">
+														<mat-option *ngFor="let item of discountOptions" [value]="item.type_value" >
+															{{item.type_label}}
+														</mat-option>
+													</mat-select>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput type="number" placeholder="Discount" formControlName="discountValue" autocomplete="off" maxlength="50" (keyup)="calculateGrandTotal($event, 'discount')"/>
+													<mat-error>Discount is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput type="number" placeholder="GrandTotal" formControlName="grandTotal" autocomplete="off" maxlength="50"/>
+													<mat-error>Grand Total is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-select formControlName="termPeriod" placeholder="Term Period" #termperiod (selectionChange)="changeTermPeriod(termperiod.value)">
+														<mat-option *ngFor="let item of termOptions" [value]="item.type_value" >
+															{{item.type_label}}
+														</mat-option>
+													</mat-select>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-2 kt-margin-bottom-20-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<input matInput placeholder="Term" formControlName="term" autocomplete="off" maxlength="50"/>
+													<mat-error>Term is
+														<strong>required</strong>
+													</mat-error>
+												</mat-form-field>
+											</div>
+											<div class="col-lg-6 kt-margin-bottom-10-mobile">
+												<mat-form-field class="mat-form-field-fluid">
+													<mat-label class="fw-bold">Note</mat-label>
+													<textarea matInput class="inpt-custom" autocomplete="off" rows="4" formControlName="note"></textarea>
+												</mat-form-field>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>
+

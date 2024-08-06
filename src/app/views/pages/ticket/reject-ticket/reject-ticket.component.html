@@ -1,0 +1,141 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/ticket']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					<p class="sty-default m-0 p-0">Ticket Info</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div class="hide-scroll" *ngIf="ticket">
+						<form [formGroup]="ticketForm" class="sty-default kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<h6 class="mb-4 mt-4 font-weight-bold">Reject Information</h6>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Reject Reason</h6>
+									<p>{{ticket?.rejectDesc ? (ticket?.rejectDesc | titlecase) : (rejectDesc | titlecase)}}</p>
+								</div>
+							</div>
+							<hr>
+							<!-- New Style Ticketing START -->
+							<h6 class="mb-4 mt-4 font-weight-bold">Ticket Information</h6>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Ticket ID</h6>
+									<p>{{ticket?.ticketId | uppercase}}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Ticket Date</h6>
+									<p>{{ticket?.createdDate | date:"dd/MM/y"}}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Unit</h6>
+									<p>{{ cdUnit }}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Name" formControlName="contract2" />
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Phone" formControlName="tenant_phone" />
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Tenant Email " formControlName="tenant_email" />
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-3 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Subject Ticket" formControlName="subject" />
+										<mat-error>Subject is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-3"></div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Location</h6>
+									<p>{{ ticket?.subDefect.category.name | titlecase }}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Detail Category</h6>
+									<p>{{ ticket?.subDefect.defect.defect_name | titlecase }}</p>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Sub Detail Category</h6>
+									<p>{{ ticket?.subDefect.subtype | titlecase }}</p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<h6>Priority</h6>
+									<span class="chip"
+										[ngClass]="ticket?.priority === 'Medium' ? 'chip--medium' : ticket?.priority === 'High' ? 'chip--high' : 'chip--low'">
+										{{ticket?.priority }}
+									</span>
+								</div>
+								<div class="col-lg-5">
+									<mat-form-field class="mat-form-field-fluid">
+										<input class="sty-default" matInput placeholder="Description" formControlName="description" />
+										<mat-error>Description is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<!-- New Style Ticketing END -->
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-ruler"></i>
+					<p class="sty-default m-0 p-0">Image</p>
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div>
+						<div class="kt-form__section kt-form__section--first">
+							<div class="form-group kt-form__group row">
+								<div class="form-image-container">
+									<img crossorigin="anonymous" *ngFor='let image of images' src="http://{{ image }}"
+										style="height: 300px; width: 300px; margin-left: 20px; margin-top: 20px;">
+									<div class="no-image" *ngIf="images.length < 1">
+										<span>No attached image</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

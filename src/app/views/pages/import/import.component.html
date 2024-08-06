@@ -1,0 +1,33 @@
+<script src="dropzone.js"></script>
+<div class="kt-portlet">
+	<div class="kt-portlet__head">
+		<div class="kt-portlet__head-label">
+			<h3 class="kt-portlet__head-title">
+				Import Data
+			</h3>
+		</div>
+	</div>
+	<!--begin::Form-->
+	<form class="kt-form kt-form--label-right dropzone">
+		<div class="kt-portlet__body">
+			<div class="form-group row">
+				<label class="col-form-label col-lg-3 col-sm-12">Upload File Master</label>
+				<div class="col-lg-4 col-md-9 col-sm-12">
+					<div class="dropzone dropzone-default" id="kt_dropzone_1">
+						<input type="file" class="dropzone-select btn btn-label-brand btn-bold btn-sm dz-clickable" name="file" (change)="selectFile($event)" accept=".xlsx">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="kt-portlet__foot">
+			<div class="kt-form__actions">
+				<div class="row">
+					<div class="col-lg-9 ml-lg-auto">
+						<button type="submit" class="btn btn-brand" (click)="onSubmit()">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<!--end::Form-->
+</div>

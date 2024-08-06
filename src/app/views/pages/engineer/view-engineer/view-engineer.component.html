@@ -1,0 +1,169 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/engineer']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Engineer info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="engineer">
+						<form [formGroup]="engineerForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-12 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="NIP" formControlName="engnrid" />
+											<mat-error>NIP is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<label for="typeToken">Menu Token</label>
+									<div class="mx-3 d-flex align-items-center">
+										<input type="radio" id="tokenorabonement" name="fav_language" value="tokenorabonement"
+											[checked]="true" />
+										<label for="token" class="m-0 pl-2">{{isToken ? 'Active' : 'inActive'}}</label><br>
+									</div>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Engineer name" formControlName="name" />
+										<mat-error>Engineer name is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<mat-select matInput placeholder="Engineer status" formControlName="status">
+											<mat-option value="active">Active</mat-option>
+											<mat-option value="inactive">Inactive</mat-option>
+										</mat-select>
+										<mat-error>Engineer status is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Engineer Phone Number" formControlName="phone" />
+										<mat-error>Engineer phone is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Engineer Email" formControlName="email" />
+										<mat-error>Engineer email is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput [matDatepicker]="birth_date" placeholder="Birth Date" formControlName="birth_date"/>
+										<mat-datepicker-toggle matSuffix [for]="birth_date"></mat-datepicker-toggle>
+										<mat-datepicker #birth_date></mat-datepicker>
+										<mat-error>Birth Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput [matDatepicker]="join_date" placeholder="Joinning Date" formControlName="join_date"/>
+										<mat-datepicker-toggle matSuffix [for]="join_date"></mat-datepicker-toggle>
+										<mat-datepicker #join_date></mat-datepicker>
+										<mat-error>Joinning Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input type="text" matInput placeholder="Select Department" [formControl]="viewDepartmentResult" [matAutocomplete]="departmentAuto" (keyup)="_onKeyup($event, 'department')"
+										>
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<mat-autocomplete #departmentAuto="matAutocomplete">
+											<mat-option *ngFor="let item of departmentListFiltered" value="{{item.department_name | titlecase}}" (click)="_setFormValue(item, 'department')" >
+												{{item.department_name | titlecase }}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input type="text" matInput placeholder="Select Division" [formControl]="viewDivisionResult" [matAutocomplete]="divisionAuto" (keyup)="_onKeyup($event, 'division')"
+										>
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<mat-autocomplete #divisionAuto="matAutocomplete">
+											<mat-option *ngFor="let item of divisionListFiltered" value="{{item.division_name | titlecase}}" (click)="_setFormValue(item, 'division')" >
+												{{item.division_name | titlecase }}
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-6 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input type="text" matInput placeholder="Select Default Shift" [formControl]="viewShiftResult" [matAutocomplete]="shiftAuto" (keyup)="_onKeyup($event, 'shift')"
+										>
+										<mat-error>Fill input by selecting the given items</mat-error>
+										<!-- <div *ngIf="shiftListFiltered.length <= 0" class="form-loader">
+											<mat-option>No item</mat-option>
+										</div> -->
+										<mat-autocomplete #shiftAuto="matAutocomplete">
+											<mat-option *ngFor="let item of shiftListFiltered" value="{{item.name | titlecase}}" (click)="_setFormValue(item, 'shift')" >
+												{{item.name | titlecase }} ({{item.start_schedule}} - {{item.end_schedule}})
+											</mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-4 kt-margin-bottom-10-mobile margin_h_20">
+									<div class="preview__container">
+										<div class="preview__container-images">
+											<div *ngFor="let image of documents" class="preview__frame">
+												<a href={{documents[0].url}} target="_blank" *ngIf="documents.length > 0">
+													<img src={{documents[0].url}}>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

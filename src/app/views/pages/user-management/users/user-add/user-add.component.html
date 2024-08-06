@@ -1,0 +1,271 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['../../']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<!-- <a href="javascript:;" class="kt-margin-r-10" (click)="reset()" [disabled]="selectedTab !== 0" mat-raised-button>
+				<i class="la la-cog"></i>
+				<span class="kt-hidden-mobile">Reset</span>
+			</a> -->
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSumbit(false)"
+				mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					User Management Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="user" class="overflow-hidden">
+						<form [formGroup]="userForm" class="kt-form kt-form--group-seperator-dashed"
+							(keydown.enter)="$event.preventDefault()">
+
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Role" formControlName="role" #rle
+												(selectionChange)="getdatauser(rle.value)">
+												<mat-option *ngFor="let item of roleResult" [value]="item._id">
+													{{item.role | titlecase}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select formControlName="role" placeholder="Select User Role" (selectionChange)="getdatauser()">
+												<mat-option value="administrator"> Administrator </mat-option>
+												<mat-option value="operator"> Operator </mat-option>
+												<mat-option value="user"> User </mat-option>
+												<mat-option value="engineer"> Engineer </mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div> -->
+
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isCommercial">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Commercial" formControlName="commersil" #comm
+												(selectionChange)="getSingleCommercial(comm.value)">
+												<mat-option *ngFor="let item of commercialResult" [value]="item._id">
+													{{item.namaToko | titlecase}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isCustomer">
+										<mat-form-field class="mat-form-field-fluid">
+											<!-- <input type="text" matInput placeholder="Select Customer" [formControl]="viewCustomerResult" [matAutocomplete]="customerAuto" (keyup)="_onKeyup($event)"
+											>
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<mat-autocomplete #powerAuto="matAutocomplete">
+												<mat-option *ngIf="loadingData.Meter">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner>
+													</div>
+												</mat-option>
+												<mat-option *ngIf="!loadingData.Meter && !customerListResultFiltered.length">Item is empty</mat-option>
+												<mat-option *ngFor="let item of customerListResultFiltered" value="{{item.nmmtr}} - {{item.unit | titlecase}}" (click)="_setCustomerValue(item)" >
+													{{item.nmmtr}} - {{ item.unit | titlecase}}
+												</mat-option>
+											</mat-autocomplete> -->
+											<!-- <mat-select placeholder="Select Customer" formControlName="tenant" #cst
+												(selectionChange)="getSingleCustomer(cst.value)">
+												<mat-option *ngFor="let item of customerResult" [value]="item._id">
+													{{item.cstrmrnm | titlecase}}
+												</mat-option>
+											</mat-select> -->
+
+											<!-- New Auto Complete (Start) -->
+											<input type="text" matInput placeholder="Select Customer" [matAutocomplete]="autoCstmr"
+												(keyup)="_onKeyupCstmr($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #autoCstmr="matAutocomplete">
+												<mat-option *ngFor="let item of customerResultFiltered" value="{{item.cstrmrnm  | titlecase}}"
+													(click)="getSingleCustomer(item._id)">
+													{{item.cstrmrnm | titlecase}}
+												</mat-option>
+											</mat-autocomplete>
+											<!-- New Auto Complete (End) -->
+										</mat-form-field>
+									</div>
+
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isEngineer">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Engineer" formControlName="engineer" #eng (selectionChange)="getSingleEngineer(eng.value)">
+												<mat-option *ngFor="let item of engineerResult" [value]="item._id" >
+													{{item.name | titlecase}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div> -->
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isEngineer">
+										<mat-form-field class="mat-form-field-fluid">
+											<input type="text" matInput placeholder="Select Engineer" [formControl]="viewBlockResult"
+												[matAutocomplete]="csmrAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.user" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #csmrAuto="matAutocomplete">
+												<mat-option *ngFor="let item of EngineerResultFiltered" value="{{item.name}}"
+													(click)="_setBlockValue(item, 'engineer')">
+													{{item.name }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+
+									<!-- for security and housekeeping -->
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isExternalUser">
+										<mat-form-field class="mat-form-field-fluid">
+											<input type="text" matInput placeholder="Select User" [formControl]="viewBlockResult"
+												[matAutocomplete]="externalAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.user" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #externalAuto="matAutocomplete">
+												<mat-option *ngFor="let item of externalUserResultFiltered" value="{{item.name}}"
+													(click)="_setBlockValue(item, 'externalUser')">
+													{{item.name }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isInternalUser">
+										<mat-form-field class="mat-form-field-fluid">
+											<input type="text" matInput placeholder="Select User" [formControl]="viewBlockResult"
+												[matAutocomplete]="internalAuto" (keyup)="_onKeyup($event)">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<div *ngIf="loadingData.user" class="form-loader">
+												<mat-spinner [diameter]="10"></mat-spinner>
+											</div>
+											<mat-autocomplete #internalAuto="matAutocomplete">
+												<mat-option *ngFor="let item of internalUserResultFiltered" value="{{item.name}}"
+													(click)="_setBlockValue(item, 'internalUser')">
+													{{item.name }}
+												</mat-option>
+											</mat-autocomplete>
+										</mat-form-field>
+									</div>
+
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="First Name" formControlName="first_name" autocomplete="off" />
+											<mat-error>First name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Last Name" formControlName="last_name" autocomplete="off" />
+											<mat-error>Last name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Username" formControlName="username" autocomplete="off"
+												maxlength="15" />
+											<mat-error>Username is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Password" formControlName="password" autocomplete="false"
+												type="password" autocomplete="off" />
+											<mat-error>Password is
+												<strong>required</strong>
+											</mat-error>
+											<mat-hint>password must be 8-16 characters and include both numbers and letters</mat-hint>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="row" [hidden]="isCustomer">
+									<div class="col">
+										<div class="float-left">
+											<mat-form-field class="example-form-field mr-2">
+												<mat-label class="text-primary fw-bold">Search Unit</mat-label>
+												<input matInput type="text" (keyup)="onChange($event)">
+
+											</mat-form-field>
+										</div>
+
+									</div>
+									<div class="col">
+										<div class="float-right mt-1">
+											<button mat-raised-button type="button" color="primary" (click)="clearAllSelection($event)">
+												<mat-icon class="mt-2">autorenew</mat-icon>
+												Reset
+											</button>
+										</div>
+									</div>
+								</div>
+								<div class="row" [hidden]="isCustomer">
+									<div class="col-md-6 mb-3 ml-2 mr-4 border border-secondary checkbox-container">
+										<div class="row mt-1 mb-2 mx-0">
+											<button mat-button type="button" color="danger" class="p-0 mx-0 select-all"
+												(click)="masterToggle()">
+												<mat-icon class="mt-2">check_circle_outline</mat-icon>
+												Select All
+											</button>
+										</div>
+										<div class="row">
+											<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" *ngFor="let list of unitRes; let id = index">
+												<mat-checkbox class="fs-" (click)="selectUnit(list ,$event)"
+													(change)="$event ? unitSelection.toggle(list._id) : null"
+													[checked]="unitSelection.isSelected(list._id)">
+													<small>{{ list.nmunt }}</small>
+												</mat-checkbox>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-5 d-flex flex-column flex-wrap mb-3 ml-4 px-4 py-2 border border-secondary">
+										<ng-container>
+											<p class="font-italic">Unit Selected</p>
+										</ng-container>
+										<ng-container>
+											<mat-chip-list aria-label="Fish selection">
+												<mat-chip *ngFor="let item of selectedUnit">
+													<small>{{item.nmunt}}</small>
+													<mat-icon matChipRemove (click)="_deleteUntList(item)">cancel</mat-icon>
+												</mat-chip>
+											</mat-chip-list>
+										</ng-container>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

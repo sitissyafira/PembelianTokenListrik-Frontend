@@ -1,0 +1,243 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/prkbilling']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<a href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" [disabled]="loading"
+				(click)="onSubmit(false)" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Parking Billing Info
+				</ng-template>
+				<ng-template matTabContent>
+					<!--begin::Form-->
+					<div *ngIf="prkbilling">
+						<form [formGroup]="prkbillingForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Unit" formControlName="parking" #unt
+												(selectionChange)="getUnitId(unt.value)">
+												<mat-option *ngFor="let item of unitResult" [value]="item._id">
+													{{item.unit2 | uppercase }} - {{item.vehicleNum | uppercase }} -{{item.status | uppercase
+													}}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Tenant Name" formControlName="tenantName" />
+											<mat-error>Tenant Name is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Rental Parking Price" formControlName="priceRent" onkeydown="javascript: return event.keyCode === 8 ||
+											event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+											<span matPrefix>Rp&nbsp;</span>
+											<mat-error>Price is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Description " formControlName="notes" />
+											<mat-error>Description is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-checkbox [(ngModel)]="isNew" (change)="changeParking()" formControlName="isNEW">New
+											Registration</mat-checkbox>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile" [hidden]="ParkingFee">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Parking Card Fee" formControlName="parkingFee" onkeydown="javascript: return event.keyCode === 8 ||
+													event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+											<span matPrefix>Rp&nbsp;</span>
+											<mat-error>Parking Fee is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="paiddt" placeholder="Payment Date" formControlName="paidDate"
+												(click)="paiddt" autocomplete="off" />
+											<mat-datepicker-toggle matSuffix [for]="paiddt"></mat-datepicker-toggle>
+											<mat-datepicker #paiddt></mat-datepicker>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Account No" formControlName="customerBankNo" onkeydown="javascript: return event.keyCode === 8 ||
+												event.keyCode === 46 ? true : !isNaN(Number(event.key))" />
+											<mat-error>Account No is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Bank Name" formControlName="customerBank" />
+											<mat-error>Payment From is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div> -->
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Select Payment Type" formControlName="paymentType">
+												<mat-option value="BCA Virtual Account">BCA Virtual Account</mat-option>
+												<mat-option value="Transfer">Transfer</mat-option>
+												<mat-option value="Debit BCA">Debit BCA</mat-option>
+												<mat-option value="Other Debit">Other Debit</mat-option>
+												<mat-option value="Debit Credit Card">Debit Credit Card</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+									<!-- <div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid To" formControlName="bank">
+												<mat-option *ngFor="let item of bankResult" [value]="item._id">
+													{{item.acctName | uppercase}} - {{item.acctNum}}
+												</mat-option>
+											</mat-select>
+											<mat-error>Account Bank is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div> -->
+
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="!isVirtualAcct">
+										<mat-form-field class="mat-form-field-fluid">
+											<mat-select placeholder="Paid To" formControlName="virtualAccId">
+												<mat-option *ngFor="let list of virtualAcctRslt" [value]="list._id">{{ list.name }}
+												</mat-option>
+											</mat-select>
+											<mat-error>
+												Paid To is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+
+									<!-- ================= Paid To ================= -->
+									<div class="col-lg-3 kt-margin-bottom-20-mobile" [hidden]="isVirtualAcct">
+										<mat-form-field class="mat-form-field">
+											<input type="text" matInput class="inpt-custom" [formControl]="viewBankResult"
+												[matAutocomplete]="paidToAuto" (keyup)="_onKeyupPaidTo($event)" placeholder="Paid To">
+											<mat-error>Fill input by selecting the given items</mat-error>
+											<mat-autocomplete #paidToAuto="matAutocomplete">
+												<mat-option *ngFor="let item of BankResultFiltered"
+													value="{{item.acctName | uppercase}} - {{item.acctNo}}" (click)="_setBankValue(item._id)">
+													{{ item.acctName | uppercase}} - {{item.acctNo }}
+												</mat-option>
+											</mat-autocomplete>
+											<mat-error>Account Bank is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+
+
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Description" formControlName="desc" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!--end::Form-->
+				</ng-template>
+			</mat-tab>
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-money-bill"></i>
+					Billing Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="prkbilling">
+						<form *ngIf="prkbillingForm" [formGroup]="prkbillingForm" class="kt-form kt-form--group-seperator-dashed">
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-4 kt-margin-bottom-20-mobile">
+									<mat-form-field class="mat-form-field-fluid">
+										<input matInput placeholder="Billing No." formControlName="billingNo" />
+										<mat-error>Billing No. is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-4 kt-margin-bottom-20-mobile">
+									<mat-form-field>
+										<input matInput [matDatepicker]="crtdt" placeholder="Created Date" formControlName="createdDate" />
+										<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+										<mat-datepicker #crtdt></mat-datepicker>
+										<mat-error>Created Date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+								<div class="col-lg-4 kt-margin-bottom-20-mobile">
+									<mat-form-field>
+										<input matInput [matDatepicker]="billdate" placeholder="Billing Date"
+											formControlName="billingDate" />
+										<mat-datepicker-toggle matSuffix [for]="billdate"></mat-datepicker-toggle>
+										<mat-datepicker #billdate></mat-datepicker>
+										<mat-error>Billing date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+							<div class="form-group kt-form__group row">
+								<div class="col-lg-4 kt-margin-bottom-20-mobile">
+									<mat-form-field>
+										<input matInput [matDatepicker]="ddate" placeholder="Billing Due Date" formControlName="dueDate" />
+										<mat-datepicker-toggle matSuffix [for]="ddate"></mat-datepicker-toggle>
+										<mat-datepicker #ddate></mat-datepicker>
+										<mat-error>Due date is
+											<strong>required</strong>
+										</mat-error>
+									</mat-form-field>
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

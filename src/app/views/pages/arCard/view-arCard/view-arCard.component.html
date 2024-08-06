@@ -1,0 +1,119 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/arCard']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<div class="modalLoad">
+			<div>
+				<ng-template #modalLoad let-c="close" let-d="dismiss">
+					<div class="modal-body">
+						<div class="d-flex justify-content-center align-items-center loading mb-3" id="loading">
+							<span class="mr-3">Loading Form...</span>
+							<mat-spinner [diameter]="40"></mat-spinner>
+						</div>
+					</div>
+				</ng-template>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12">
+				<h5 class="mb-3">Information AR Card</h5>
+				<table class="table-custom">
+					<tr>
+						<td width="150">
+							<h6 class="mb-3">No Unit</h6>
+						</td>
+						<td>
+							<h6>: {{arCardBio?.unitName}} </h6>
+						</td>
+					</tr>
+					<tr>
+						<td width="150">
+							<h6 class="mb-3">Start Date</h6>
+						</td>
+						<td>
+							<h6>: {{arCardBio?.startDate}}</h6>
+						</td>
+					</tr>
+					<tr>
+						<td width="150">
+							<h6 class="mb-3">End Date</h6>
+						</td>
+						<td>
+							<h6>: {{arCardBio?.endDate}}</h6>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- Button Download -->
+		<div class="form__btn-group__confirm d-flex justify-content-between">
+			<div></div>
+			<button (click)="printPdf()" mat-flat-button class="mr-3" color="primary">
+				Download PDF
+			</button>
+			<!-- <button mat-flat-button (click)="export()" color="primary" [disabled]="!valid || loading.status" >Export Excel</button> -->
+		</div>
+		<br>
+
+		<!-- Preview Table start -->
+		<br>
+		<div class="title d-flex flex-column align-items-center">
+			<h2>Unit : {{arCardBio?.unitName}}</h2>
+			<h2 class="text-danger">AR CARD</h2>
+		</div>
+		<br>
+		<div class="sub_desc d-flex justify-content-between">
+			<p>Currency : Rupiah</p>
+			<table>
+				<tr>
+					<td> Nama Penghuni</td>
+					<td> : {{arCardBio?.cstmr}}</td>
+				</tr>
+				<tr>
+					<td> Periode</td>
+					<td> : {{arCardBio?.startDate}} - {{arCardBio?.endDate}}</td>
+				</tr>
+			</table>
+		</div>
+		<br>
+		<div class="custom_table_preview">
+			<table *ngIf="arCard">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Account</th>
+						<th>Description</th>
+						<th>No Ref</th>
+						<th>Debit</th>
+						<th>Credit</th>
+						<th>Balance</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let tr of arCard; let i = index">
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">{{tr?.created_date | date:"dd/MM/y"}}</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">{{tr?.accountDesc }}</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">{{tr?.description }}</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">{{tr?.noRef === 'balance'? '' : tr?.noRef }}</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">
+							{{tr?.debitToBill == 0 ? " " : tr?.debitToBill | currency:"IDR": "" }}
+						</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">
+							{{tr?.creditToBill == 0 ? " " : tr?.creditToBill | currency:"IDR": "" }}
+						</td>
+						<td [ngClass]="i % 2 === 0 ? 'evenOdd' : ''">{{tr?.balance | currency: "IDR": ""}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- Preview Table end -->
+
+	</kt-portlet-body>
+</kt-portlet>

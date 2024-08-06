@@ -1,0 +1,229 @@
+<kt-portlet>
+	<kt-portlet-header [title]="getComponentTitle()" [class]="'kt-portlet__head--lg'" [viewLoading$]="loading$">
+		<ng-container ktPortletTools>
+			<a [routerLink]="['/purchaseRequest']" class="btn btn-secondary kt-margin-r-10" mat-raised-button>
+				<i class="la la-arrow-left"></i>
+				<span class="kt-hidden-mobile">Back</span>
+			</a>
+			<button href="javascript:;" class="btn btn-primary kt-margin-r-10" color="primary" (click)="onSubmit(false)"
+				[disabled]="loading" mat-raised-button>
+				<span class="kt-hidden-mobile">Save</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<kt-portlet-body>
+		<mat-tab-group [(selectedIndex)]="selectedTab">
+			<mat-tab>
+				<ng-template mat-tab-label>
+					<i class="mat-tab-label-icon fa fa-user"></i>
+					Purchase Request Info
+				</ng-template>
+				<ng-template matTabContent>
+					<div *ngIf="purchaseRequest">
+						<form [formGroup]="purchaseRequestForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="purchase request no" formControlName="purchase_request_no"
+												autocomplete="off" maxlength="50" />
+											<mat-error>purchase_request_no Code is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="crtdt" placeholder="Request Date" formControlName="request_date"
+												(dateChange)="receivedHandler($event)" />
+											<mat-datepicker-toggle matSuffix [for]="crtdt"></mat-datepicker-toggle>
+											<mat-datepicker #crtdt></mat-datepicker>
+											<mat-error>Request Date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput [matDatepicker]="rcvdt" placeholder="Estimated Date"
+												formControlName="estimated_date" [min]="minDate" (dateChange)="receivedHandler($event)" />
+											<mat-datepicker-toggle matSuffix [for]="rcvdt"></mat-datepicker-toggle>
+											<mat-datepicker #rcvdt></mat-datepicker>
+											<mat-error>Estimated Date is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Tax (Optional)" formControlName="tax" #tax  (selectionChange)="taxChange(tax.value)">
+													<mat-option *ngIf="loadingTax">
+													<div class="opt-loader">
+														<mat-spinner [diameter]="15"></mat-spinner>
+													</div>
+												  </mat-option>
+												  <mat-option *ngIf="!loadingTax && !TaxResult.length">Item is empty</mat-option>
+												  <mat-option *ngFor="let item of TaxResult" [value]="item._id" >
+													  {{item.nominal}}
+												  </mat-option>
+												</mat-select>
+												<mat-error>Tax is
+												  <strong>required</strong>
+												</mat-error>
+												</mat-form-field>
+										</div> -->
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Sub Total" formControlName="subTotal" autocomplete="off"
+												maxlength="50" />
+											<mat-error>Sub Total is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Type PR" formControlName="type" (selectionChange)="changeType($event)">
+												  <mat-option [value]="'purchase order'">Purchase Order</mat-option>
+												  <mat-option [value]="'stock out'">Stock Out</mat-option>
+												</mat-select>
+												<mat-error>Type is
+												  <strong>required</strong>
+												</mat-error>
+												</mat-form-field>
+										</div> -->
+								</div>
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<mat-select placeholder="Select Discount Type (Optional)" formControlName="type_discount" (change)="changePOTotal()">
+													<mat-option value="pr">Persen Rate</mat-option>
+													<mat-option value="fr">Fixed Rate</mat-option>
+												</mat-select>
+											  </mat-form-field>
+										</div>
+										<div class="col-lg-4 kt-margin-bottom-20-mobile">
+											<mat-form-field class="mat-form-field-fluid">
+												<input matInput placeholder="Discount (Optional)" formControlName="discount" (keydown)="inputKeydownHandler($event)" autocomplete="off" maxlength="50" (change)="changePOTotal()"/>
+												<mat-error>Discount is
+													<strong>required</strong>
+												</mat-error>
+											</mat-form-field>
+										</div> -->
+									<div class="col-lg-4 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Grand Total" formControlName="grandTotal" autocomplete="off"
+												maxlength="50" />
+											<mat-error>Grand Total is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-9 kt-margin-bottom-20-mobile">
+										<mat-form-field class="mat-form-field-fluid">
+											<input matInput placeholder="Description" formControlName="description" autocomplete="off"
+												maxlength="100" />
+											<mat-error>description is
+												<strong>required</strong>
+											</mat-error>
+										</mat-form-field>
+									</div>
+									<div class="col-lg-3 kt-margin-bottom-20-mobile">
+										<mat-checkbox [(ngModel)]="status" formControlName="isApproved" [hidden]="hidePosting(role)">Posting</mat-checkbox>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div *ngIf="purchaseRequest">
+						<form [formGroup]="purchaseRequestForm" class="kt-form kt-form--group-seperator-dashed">
+							<kt-alert *ngIf="hasFormErrors" type="warn" [showCloseButton]="true" [duration]="10000"
+								(close)="onAlertClose($event)">
+								Oh snap! Change a few things up and try submitting again.
+							</kt-alert>
+							<div class="kt-form__section kt-form__section--first">
+								<div class="form-group kt-form__group row">
+									<div class="col-lg-2 kt-margin-bottom-20-mobile">
+										<button mat-raised-button color="primary"
+											[disabled]="purchaseRequest._id || dataSource.value.length > 4" (click)="processMenuHandler()">Add
+											Product</button>
+									</div>
+								</div>
+								<div class="form-group kt-form__group row">
+									<!-- <div class="col-lg-12 kt-margin-bottom-20-mobile"> -->
+									<div class="mat-table__wrapper">
+										<mat-table class="lmat-elevation-z8" #table *ngIf="!loadingProduct || dataSource.value.length > 0"
+											[dataSource]="dataSource">
+
+											<ng-container matColumnDef="product_code">
+												<mat-header-cell *matHeaderCellDef>Product Code</mat-header-cell>
+												<mat-cell *matCellDef="let product">{{ product?.product_code}}</mat-cell>
+											</ng-container>
+											<ng-container matColumnDef="product_name">
+												<mat-header-cell *matHeaderCellDef>Product Name</mat-header-cell>
+												<mat-cell *matCellDef="let product">{{ product?.product_name | titlecase }}</mat-cell>
+											</ng-container>
+											<ng-container matColumnDef="qty">
+												<mat-header-cell *matHeaderCellDef>Qty</mat-header-cell>
+												<mat-cell *matCellDef="let product">
+													<span class="ml-2 text-bold">
+														{{ product?.qty }}
+													</span>
+													<div class="ml-2">
+														<button mat-icon-button color="warn" [disabled]="purchaseRequest._id"
+															style="margin-right: -10px;" matTooltip="Remove" type="button"
+															(click)="(decStock(product._id))">
+															<mat-icon>remove</mat-icon>
+														</button>
+														<button mat-icon-button color="accent" [disabled]="purchaseRequest._id" matTooltip="Add"
+															type="button" (click)="(intStock(product._id))">
+															<mat-icon>add</mat-icon>
+														</button>
+													</div>
+												</mat-cell>
+											</ng-container>
+											<ng-container matColumnDef="uom">
+												<mat-header-cell *matHeaderCellDef>Uom</mat-header-cell>
+												<mat-cell *matCellDef="let product">{{ product?.uom2 | titlecase }}</mat-cell>
+											</ng-container>
+											<ng-container matColumnDef="description">
+												<mat-header-cell *matHeaderCellDef>Desccription</mat-header-cell>
+												<mat-cell *matCellDef="let product">{{ product?.description | titlecase }}</mat-cell>
+											</ng-container>
+											<ng-container matColumnDef="actions">
+												<mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+												<mat-cell *matCellDef="let product">
+													<button mat-icon-button color="warn" [disabled]="purchaseRequest._id" matTooltip="Delete"
+														type="button" (click)="deleteProduct(product._id)">
+														<mat-icon>delete</mat-icon>
+													</button>
+												</mat-cell>
+											</ng-container>
+
+											<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+											<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+										</mat-table>
+										<div class="mat-table__message" *ngIf="dataSource.value.length === 0">No records found</div>
+										<div class="mat-table__message" *ngIf="loadingProduct">Please wait....</div>
+									</div>
+									<!-- </div> -->
+								</div>
+							</div>
+						</form>
+					</div>
+				</ng-template>
+			</mat-tab>
+
+		</mat-tab-group>
+	</kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,14 @@
+.opt-loader {
+  display: inline-flex;
+  align-items: center;
+  mat-spinner {
+    margin-right: 5px;
+  }
+}
+
+.form-loader {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 1em;
+}

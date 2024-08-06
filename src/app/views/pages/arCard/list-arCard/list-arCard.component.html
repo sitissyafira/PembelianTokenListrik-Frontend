@@ -1,0 +1,278 @@
+<kt-portlet>
+	<kt-portlet-header [title]="'AR Card List'" [class]="'kt-portlet__head--lg'" [viewLoading$]="dataSource.loading$">
+		<ng-container ktPortletTools>
+			<button mat-raised-button class="mr-2" (click)="refresh()">Refresh
+				<mat-icon class="ic-refresh">
+					refresh
+				</mat-icon>
+			</button>
+		</ng-container>
+		<ng-container ktPortletTools>
+			<button class="sty-default" mat-raised-button color="primary" class="ml-2" (click)="generateARCard()"><span
+					class="sty-default">Generate</span></button>
+		</ng-container>
+		<ng-container ktPortletTools>
+			<button class="sty-default" mat-raised-button color="primary" class="ml-2" (click)="openLarge(content6)"
+				[hidden]="role === 'manager'"><span class="sty-default">Import</span></button>
+		</ng-container>
+		<ng-container ktPortletTools>
+			<button class="sty-default" mat-raised-button color="primary" class="ml-2"
+				(click)="openLargeExport(contentExport)" [hidden]="role === 'manager'"><span
+					class="sty-default">Export</span></button>
+		</ng-container>
+	</kt-portlet-header>
+
+	<!-- Pop Up Import start -->
+	<div class="example-preview">
+		<div>
+			<ng-template #content6 let-c="close" let-d="dismiss">
+				<div class="modal-header">
+					<h4 class="modal-title">AR Card Import</h4>
+					<button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form class="kt-form kt-form--label-right dropzone">
+						<div class="kt-portlet__body">
+							<div class="form-group row">
+								<label class="col-form-label col-lg-3 col-sm-12">Upload File Master</label>
+								<div class="col-lg-5 col-md-9 col-sm-12">
+									<div class="dropzone dropzone-default" id="kt_dropzone_1">
+										<input type="file" class="dropzone-select btn btn-label-brand btn-bold btn-sm dz-clickable"
+											name="file" (change)="selectFile($event)" accept=".xlsx">
+									</div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-form-label col-lg-3 col-sm-12"></label>
+								<ng-container ktPortletTools>
+									<button (click)="exportExample()" mat-raised-button color="primary" class="ml-2">Download
+										Template</button>
+								</ng-container>
+							</div>
+						</div>
+						<div class="kt-portlet__foot">
+							<div class="kt-form__actions">
+								<div class="row">
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
+					<button type="button" class="btn btn-primary"
+						(click)="onSubmit(); c('Close click'); processSaving(processImport)">Upload</button>
+				</div>
+			</ng-template>
+		</div>
+	</div>
+	<!-- Pop Up Import end -->
+
+	<!-- Pop Up Export start -->
+	<div class="example-preview">
+		<div>
+			<ng-template #contentExport let-c="close" let-d="dismiss">
+				<div class="modal-header">
+					<h4 class="modal-title">AR Card Export</h4>
+					<button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form [formGroup]="arCardDate">
+						<div class="kt-portlet__body">
+							<mat-form-field class="mat-form-field-fluid col-sm-6" periodYear>
+								<input matInput class="inpt-custom" [matDatepicker]="periodYear" formControlName="periodYear"
+									(click)="periodYear.open()" placeholder="Select Year" autocomplete="off" />
+								<mat-datepicker-toggle class="ic-date" matSuffix [for]="periodYear"></mat-datepicker-toggle>
+								<mat-datepicker #periodYear startView="multi-year"
+									(yearSelected)="chosenYearHandler($event, periodYear)" (dateFormat)="PERIOD"></mat-datepicker>
+							</mat-form-field>
+						</div>
+						<div class="kt-portlet__foot">
+							<div class="kt-form__actions">
+								<div class="row">
+								</div>
+							</div>
+						</div>
+					</form>
+					<h5>Export AR Card Year : {{queryYear}}</h5>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
+					<button type="button" class="btn btn-primary" (click)="exportArCard()">Export</button>
+				</div>
+			</ng-template>
+		</div>
+	</div>
+	<!-- Pop Up Export end -->
+
+	<!-- Pop Up Process Import start -->
+	<div class="modalprocessgenerate">
+		<ng-template #processImport let-c="close" let-d="dismiss">
+			<div class="modal-body process-generate">
+				<!-- ========================== Condition Process ========================== -->
+				<div class="kt-portlet__body">
+					<div class="processing" [hidden]="loadCondition">
+						<div>
+							<div class="d-flex align-items-center flex-column">
+								<h3 class=" mt-5">PROCESS... </h3>
+								<div class="d-flex p-2 mb-5 warn-alert">
+									<mat-icon>warning</mat-icon>
+									<p class="m-0 p-0">don't exit the page or open a new page in the browser tab!!</p>
+								</div>
+								<mat-spinner></mat-spinner>
+								<p class="mt-2 load-process">Please wait, until the process is
+									complete...</p>
+							</div>
+						</div>
+					</div>
+					<!-- ========================== Condition Success ========================== -->
+					<div class="success-generate" [hidden]="!loadCondition">
+						<div>
+							<div class="d-flex   align-items-center flex-column">
+								<h3 class="mb-3 mt-5 mb-5">Process Import is successful! </h3>
+								<h5 class="m-0 p-0 text-success">{{messageStatus.success}}</h5>
+								<h5 class="m-0 p-0 text-danger">{{messageStatus.failed}}</h5>
+								<br>
+								<div class="success-alert p-2 mt-4 d-flex mb-3">
+									<mat-icon>info</mat-icon>
+									<p class="m-0 p-0">the generate process is successful, check your data success and failed.</p>
+								</div>
+								<br><br>
+								<button (click)="closePopUp()" mat-raised-button color="primary" class="ml-2">Back to list</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</ng-template>
+	</div>
+	<!-- Pop Up Process Import end -->
+
+	<kt-portlet-body>
+
+		<!-- Search or Select Unit start -->
+		<div class="kt-form">
+			<mat-form-field class="sty-default mat-form-field example-chips">
+				<input class="sty-default" type="text" matInput placeholder="Select Unit" [matAutocomplete]="unitAuto"
+					(keyup)="_onKeyupUnit($event)">
+				<mat-error>Fill input by selecting the given items</mat-error>
+				<mat-autocomplete #unitAuto>
+					<div *ngIf="loadingData.unit" class="form-loader">
+						<mat-spinner [diameter]="10"></mat-spinner>
+					</div>
+					<mat-option *ngFor="let list of unitResult;" value="{{ list.cdunt }}" (click)="onSelect(list)">{{ list.cdunt
+						}} </mat-option>
+				</mat-autocomplete>
+			</mat-form-field>
+
+			<mat-chip-list #chipList aria-label="unit selection">
+				<mat-chip *ngFor="let list of selectedUnit;" (removed)="deleteList(list._id, 'unit', list)" color="primary"
+					selected>
+					{{list.cdunt}}
+					<mat-icon matChipRemove>cancel</mat-icon>
+				</mat-chip>
+			</mat-chip-list>
+		</div>
+		<!-- Search or Select Unit end -->
+		<br>
+		<!-- Start & End DATE start -->
+		<div class="d-flex">
+			<div class="sty-default kt-margin-bottom-10-mobile">
+				<mat-form-field class="sty-default mat-form-field">
+					<input matInput [formControl]="date.start.control" [matDatepicker]="startDate" placeholder="Start date"
+						(focus)="startDate.open()" (dateChange)="addDate('start', $event)" readonly #startDate />
+					<mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+					<mat-datepicker #startDate></mat-datepicker>
+				</mat-form-field>
+			</div>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<div class="sty-default kt-margin-bottom-10-mobile">
+				<mat-form-field class="sty-default mat-form-field">
+					<input matInput [formControl]="date.end.control" [matDatepicker]="endDate" placeholder="End date"
+						(focus)="endDate.open()" (dateChange)="addDate('end', $event)" readonly #endDate />
+					<mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+					<mat-datepicker #endDate></mat-datepicker>
+				</mat-form-field>
+			</div>
+		</div>
+		<!-- Start & End DATE end -->
+
+		<!-- Clear Filtering start -->
+		<div *ngIf="date.valid" class="col-md-12 mt-4">
+			<button mat-raised-button color="warn" (click)="clearAllFilter()">
+				Clear All Filter
+			</button>
+		</div>
+		<!-- Clear Filtering end -->
+
+		<div class="mat-table__wrapper">
+			<mat-table class="lmat-elevation-z8" #table [dataSource]="dataSource" matSort #sort1="matSort" matSortActive="id"
+				matSortDirection="asc" matSortDisableClear>
+
+				<!-- Field No Unit -->
+				<ng-container matColumnDef="unit">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>No Unit</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{arCard.unitName}} </mat-cell>
+				</ng-container>
+
+				<!-- Field Start Date -->
+				<ng-container matColumnDef="strt">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Start Date</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{date.start.val | date:"dd/MM/y"}} </mat-cell>
+				</ng-container>
+
+				<!-- Field End Date -->
+				<ng-container matColumnDef="end">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>End Date</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{date.end.val | date:"dd/MM/y"}} </mat-cell>
+				</ng-container>
+
+				<!-- Field Bill Issued -->
+				<ng-container matColumnDef="bIssued">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Bill Issued</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{arCard.bIssued}} </mat-cell>
+				</ng-container>
+
+				<!-- Field Bill Paid -->
+				<ng-container matColumnDef="bPaid">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Bill Paid</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{arCard.bPaid}} </mat-cell>
+				</ng-container>
+
+				<!-- Field Balance -->
+				<ng-container matColumnDef="blnce">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Balance</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard"> {{arCard.lastBalance | currency: "IDR": ""}}
+					</mat-cell>
+				</ng-container>
+
+				<!-- Field Actions -->
+				<ng-container matColumnDef="actions">
+					<mat-header-cell class="sty-default" *matHeaderCellDef>Actions</mat-header-cell>
+					<mat-cell class="sty-default" *matCellDef="let arCard">
+						<button [routerLink]="['/arCard/view']"
+							[queryParams]="{id: arCard._id, startDate:  startQuery , endDate: endQuery }" mat-icon-button
+							color="primary" matTooltip="View">
+							<mat-icon>visibility</mat-icon>
+						</button>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+			</mat-table>
+			<div class="mat-table__message" *ngIf="!dataSource.hasItems">No records found</div>
+			<div class="mat-table__message" *ngIf="dataSource.isPreloadTextViewed$ | async">Please wait....</div>
+		</div>
+
+		<div class="mat-table__bottom">
+			<mat-spinner [diameter]="20" *ngIf="dataSource.loading$ | async"></mat-spinner>
+			<mat-paginator [pageSize]="10" [pageSizeOptions]="[10, 20, 50,100]" [length]="dataSource.paginatorTotal$ | async"
+				[showFirstLastButtons]="true"></mat-paginator>
+		</div>
+	</kt-portlet-body>
+</kt-portlet>
